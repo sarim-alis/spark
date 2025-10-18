@@ -1,3 +1,6 @@
+// Toggle this to switch between real API and mock data
+const USE_API = false; // Set to true to use OpenAI API, false to use mock data
+
 // Read OpenAI API key from environment variable
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
@@ -24,6 +27,18 @@ const generateMockCourse = (formData) => {
 
 export const generateCourseWithAI = async (formData) => {
   try {
+    // If USE_API is false, return mock data immediately
+    if (!USE_API) {
+      console.log('🎭 Using mock data (USE_API = false)');
+      const mockData = generateMockCourse(formData);
+      return {
+        success: true,
+        data: mockData
+      };
+    }
+
+    console.log('🤖 Using OpenAI API (USE_API = true)');
+    
     const prompt = `You are an expert course creator. Generate a comprehensive course based on the following details:
 
 Topic: ${formData.topic}
