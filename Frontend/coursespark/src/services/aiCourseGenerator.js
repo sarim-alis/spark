@@ -1,4 +1,5 @@
-// Add your OpenAI API key here
+// Read OpenAI API key from environment variable
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 // Mock course generator as fallback
 const generateMockCourse = (formData) => {
