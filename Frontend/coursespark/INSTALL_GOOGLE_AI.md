@@ -39,8 +39,6 @@ This will install the Google Gemini AI SDK for generating course content.
 
 The Google API key is embedded in the service:
 ```
-GOOGLE_API_KEY=AIzaSyBndmovbXp8B5LLA06gHz_XdzIcsTT-GDo
-```
 
 ## Testing
 
