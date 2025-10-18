@@ -36,6 +36,11 @@ export default function CourseCreator() {
       if (result.success) {
         const aiCourse = result.data;
         
+        // Create preview URL for uploaded image
+        const imagePreviewUrl = form.courseImage 
+          ? URL.createObjectURL(form.courseImage)
+          : 'https://images.unsplash.com/photo-1517512006864-9d8466f3b542?w=800';
+        
         setDraft({
           id: 'draft-' + Date.now(),
           title: aiCourse.title,
@@ -44,7 +49,7 @@ export default function CourseCreator() {
           category: form.category,
           duration_hours: form.duration,
           price: 49,
-          thumbnail_url: 'https://images.unsplash.com/photo-1517512006864-9d8466f3b542?w=800',
+          thumbnail_url: imagePreviewUrl,
           lessons: aiCourse.lessons,
           created_by: user?.email || 'dev@localhost.com',
         });
