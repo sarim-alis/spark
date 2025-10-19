@@ -76,8 +76,10 @@ export default function CourseCreator() {
       // Prepare FormData for file upload
       const formDataToSend = new FormData();
       formDataToSend.append('title', draft.title);
+      formDataToSend.append('description', draft.description || '');
+      formDataToSend.append('lessons', JSON.stringify(draft.lessons || []));
       formDataToSend.append('audience', formData.audience);
-      formDataToSend.append('difficulty', formData.level);
+      formDataToSend.append('level', formData.level);
       formDataToSend.append('duration_hours', formData.duration);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('price', formData.price);

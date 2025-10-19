@@ -26,9 +26,9 @@ class CourseController extends Controller
             $query->where('category', $request->category);
         }
 
-        // Filter by difficulty if provided
-        if ($request->has('difficulty')) {
-            $query->where('difficulty', $request->difficulty);
+        // Filter by level if provided
+        if ($request->has('level')) {
+            $query->where('level', $request->level);
         }
 
         $courses = $query->latest()->get();
@@ -46,8 +46,10 @@ class CourseController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'lessons' => 'nullable|json',
             'audience' => 'nullable|string|max:255',
-            'difficulty' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
             'duration_hours' => 'nullable|numeric|min:0',
             'category' => 'nullable|string|max:255',
             'price' => 'nullable|numeric|min:0',
@@ -127,8 +129,10 @@ class CourseController extends Controller
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'lessons' => 'nullable|json',
             'audience' => 'nullable|string|max:255',
-            'difficulty' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
             'duration_hours' => 'nullable|numeric|min:0',
             'category' => 'nullable|string|max:255',
             'price' => 'nullable|numeric|min:0',

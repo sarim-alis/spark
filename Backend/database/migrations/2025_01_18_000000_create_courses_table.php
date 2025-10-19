@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('course', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->text('description')->nullable();
+            $table->json('lessons')->nullable();
             $table->string('audience')->nullable();
-            $table->string('difficulty')->nullable();
+            $table->string('level')->nullable();
             $table->float('duration_hours', 8, 2)->nullable();
             $table->string('category')->nullable();
             $table->float('price', 8, 2)->default(0);

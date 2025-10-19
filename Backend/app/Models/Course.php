@@ -23,13 +23,26 @@ class Course extends Model
      */
     protected $fillable = [
         'title',
+        'description',
+        'lessons',
         'audience',
-        'difficulty',
+        'level',
         'duration_hours',
         'category',
         'price',
         'thumbnail_url',
         'created_by',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'lessons' => 'array',
+        'duration_hours' => 'float',
+        'price' => 'float',
     ];
 
     /**

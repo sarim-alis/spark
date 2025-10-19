@@ -14,7 +14,7 @@ export default function CoursePromptForm({ onGenerate, isGenerating }) {
     level: "beginner",
     duration: 4,
     category: "business",
-    price: 49.99,
+    price: 70,
     thumbnailUrl: null
   });
 
