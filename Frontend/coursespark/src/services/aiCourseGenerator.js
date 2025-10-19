@@ -1,5 +1,5 @@
 // Toggle this to switch between real API and mock data
-const USE_API = true; // Set to true to use OpenAI API, false to use mock data
+const USE_API = false; // Set to true to use OpenAI API, false to use mock data
 
 // Read OpenAI API key from environment variable
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
