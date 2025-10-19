@@ -1,13 +1,13 @@
 // Imports.
 import { useState, useEffect } from "react";
-import { User } from "@/api/entities";
-import { UploadFile } from "@/api/integrations";
+import { userAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Save, User as UserIcon, Upload } from "lucide-react";
+import { message } from "antd";
 
 
 // Frontend.
@@ -17,14 +17,27 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
 
-  // Fetch user.
+  // Fetch user from localStorage and API.
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData = await User.me();
-        setUser(userData);
+        // Get user from localStorage first
+        const authUser = localStorage.getItem('auth_user');
+        if (authUser) {
+          const userData = JSON.parse(authUser);
+          setUser(userData);
+        }
+        
+        // Then fetch from API to get latest data
+        const response = await userAPI.getProfile();
+        if (response.data.success) {
+          setUser(response.data.data);
+          // Update localStorage
+          localStorage.setItem('auth_user', JSON.stringify(response.data.data));
+        }
       } catch (error) {
         console.error("Failed to fetch user:", error);
+        message.error('Failed to load profile');
       }
       setIsLoading(false);
     };
@@ -43,23 +56,29 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSaving(true);
     
-    let updatedData = {
-      full_name: user.full_name,
-      bio: user.bio || "",
-    };
-
     try {
+      const updatedData = {
+        name: user.name,
+        bio: user.bio || "",
+      };
+
+      // Add profile picture file if selected
       if (profilePictureFile) {
-        const { file_url } = await UploadFile({ file: profilePictureFile });
-        updatedData.profile_picture_url = file_url;
+        updatedData.profile_picture_url = profilePictureFile;
       }
 
-      await User.updateMyUserData(updatedData);
-      alert("Profile updated successfully!");
-      window.location.reload(); // Reload to reflect changes across the app
+      const response = await userAPI.updateProfile(updatedData);
+      
+      if (response.data.success) {
+        message.success("Profile updated successfully!");
+        // Update localStorage with new data
+        localStorage.setItem('auth_user', JSON.stringify(response.data.data));
+        setUser(response.data.data);
+        setProfilePictureFile(null);
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
+      message.error(error.message || "Failed to update profile.");
     }
     
     setIsSaving(false);
@@ -94,7 +113,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-white shadow-md">
                 <AvatarImage src={profilePictureFile ? URL.createObjectURL(profilePictureFile) : user.profile_picture_url} />
-                <AvatarFallback className="text-2xl">{user.full_name?.[0]}</AvatarFallback>
+                <AvatarFallback className="text-2xl">{user.name?.[0] || 'U'}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <label htmlFor="profile-picture-upload" className="cursor-pointer">
@@ -110,10 +129,10 @@ export default function ProfilePage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700">Full Name</label>
+                <label className="text-sm font-medium text-slate-700">Name</label>
                 <Input
-                  name="full_name"
-                  value={user.full_name || ""}
+                  name="name"
+                  value={user.name || ""}
                   onChange={handleInputChange}
                   className="mt-1"
                 />
@@ -123,8 +142,9 @@ export default function ProfilePage() {
                 <label className="text-sm font-medium text-slate-700">Email Address</label>
                 <Input
                   value={user.email || ""}
+                  readOnly
                   disabled
-                  className="mt-1 bg-slate-100"
+                  className="mt-1 bg-slate-100 cursor-not-allowed"
                 />
               </div>
 

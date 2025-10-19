@@ -50,8 +50,22 @@ export const authAPI = {
 };
 
 export const userAPI = {
-    getProfile: () => api.get('/users/profile'),
-    updateProfile: (data) => api.put('/users/profile', data)
+    getProfile: () => api.get('/users/profile/me'),
+    updateProfile: (data) => {
+        // If data contains a file, use FormData
+        if (data.profile_picture_url instanceof File) {
+            const formData = new FormData();
+            Object.keys(data).forEach(key => {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key]);
+                }
+            });
+            return api.post('/users/profile/me', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put('/users/profile/me', data);
+    }
 };
 
 export default api;

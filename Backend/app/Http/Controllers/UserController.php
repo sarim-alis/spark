@@ -137,4 +137,97 @@ class UserController extends Controller
         $user->delete();
         return response()->json(null, 204);
     }
+
+    /**
+     * Get the authenticated user's profile.
+     */
+    public function getProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
+    }
+
+    /**
+     * Update the authenticated user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'profile_picture_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'bio' => 'nullable|string|max:255',
+        ]);
+
+        // Handle profile picture upload to Cloudinary
+        if ($request->hasFile('profile_picture_url')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('profile_picture_url');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'profiles',
+                    'resource_type' => 'image'
+                ]);
+
+                $data['profile_picture_url'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        try {
+            $user->update($data);
+            $user->refresh();
+            
+            // Update auth_user in localStorage
+            $authUser = json_decode(request()->header('X-Auth-User', '{}'), true);
+            $authUser = array_merge($authUser, $user->toArray());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => $user
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('Profile update failed', [
+                'id' => $user->id,
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

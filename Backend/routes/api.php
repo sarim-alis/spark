@@ -14,8 +14,14 @@ Route::put('users/{user}', [UserController::class, 'update']);
 Route::patch('users/{user}', [UserController::class, 'update']);
 Route::delete('users/{user}', [UserController::class, 'destroy']);
 
-// Courses.
+// Authenticated routes.
 Route::middleware('auth:sanctum')->group(function () {
+    // Profile routes
+    Route::get('users/profile/me', [UserController::class, 'getProfile']);
+    Route::put('users/profile/me', [UserController::class, 'updateProfile']);
+    Route::post('users/profile/me', [UserController::class, 'updateProfile']);
+    
+    // Courses
     Route::get('courses', [CourseController::class, 'index']);
     Route::post('courses', [CourseController::class, 'store']);
     Route::get('courses/{course}', [CourseController::class, 'show']);
