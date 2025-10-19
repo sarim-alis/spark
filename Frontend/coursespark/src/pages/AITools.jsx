@@ -1,4 +1,4 @@
-
+// Imports.
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { InvokeLLM } from '@/api/integrations';
 import { User } from '@/api/entities';
 import ReactMarkdown from 'react-markdown';
 
+
+// Frontend.
 export default function AITools() {
   const [user, setUser] = React.useState(null);
   const [isUnlocked, setIsUnlocked] = React.useState(false);
@@ -31,6 +33,7 @@ export default function AITools() {
     setIsCheckingAccess(false);
   };
 
+  // Handle unlock.
   const handleUnlock = async () => {
     const stripeLink = 'https://buy.stripe.com/5kQdR83PeglF5vEaCLaMU01';
     console.log('Opening Stripe link:', stripeLink);
