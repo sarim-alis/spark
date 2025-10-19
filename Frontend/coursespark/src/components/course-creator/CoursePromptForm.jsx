@@ -14,6 +14,7 @@ export default function CoursePromptForm({ onGenerate, isGenerating }) {
     level: "beginner",
     duration: 4,
     category: "business",
+    price: 49.99,
     thumbnailUrl: null
   });
 
@@ -144,6 +145,20 @@ export default function CoursePromptForm({ onGenerate, isGenerating }) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Price */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700">Price ($)</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="49.99"
+              value={formData.price}
+              onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})}
+              className="text-xs md:text-sm"
+            />
           </div>
 
           {/* Course Image */}

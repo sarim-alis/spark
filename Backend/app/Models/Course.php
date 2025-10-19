@@ -25,8 +25,9 @@ class Course extends Model
         'title',
         'audience',
         'difficulty',
-        'duration',
+        'duration_hours',
         'category',
+        'price',
         'thumbnail_url',
         'created_by',
     ];

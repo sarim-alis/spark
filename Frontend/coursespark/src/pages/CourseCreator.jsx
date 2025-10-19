@@ -78,8 +78,9 @@ export default function CourseCreator() {
       formDataToSend.append('title', draft.title);
       formDataToSend.append('audience', formData.audience);
       formDataToSend.append('difficulty', formData.level);
-      formDataToSend.append('duration', `${formData.duration} hours`);
+      formDataToSend.append('duration_hours', formData.duration);
       formDataToSend.append('category', formData.category);
+      formDataToSend.append('price', formData.price);
       
       // Add image if selected
       if (formData.thumbnailUrl) {

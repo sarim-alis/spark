@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('audience')->nullable();
             $table->string('difficulty')->nullable();
-            $table->string('duration')->nullable();
+            $table->float('duration_hours', 8, 2)->nullable();
             $table->string('category')->nullable();
+            $table->float('price', 8, 2)->default(0);
             $table->text('thumbnail_url')->nullable();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();

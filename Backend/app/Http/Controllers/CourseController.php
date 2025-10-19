@@ -48,8 +48,9 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'audience' => 'nullable|string|max:255',
             'difficulty' => 'nullable|string|max:255',
-            'duration' => 'nullable|string|max:255',
+            'duration_hours' => 'nullable|numeric|min:0',
             'category' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
         ]);
 
@@ -128,8 +129,9 @@ class CourseController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'audience' => 'nullable|string|max:255',
             'difficulty' => 'nullable|string|max:255',
-            'duration' => 'nullable|string|max:255',
+            'duration_hours' => 'nullable|numeric|min:0',
             'category' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
