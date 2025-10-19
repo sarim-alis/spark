@@ -10,6 +10,13 @@ class Course extends Model
     use HasFactory;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'course';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -20,7 +27,7 @@ class Course extends Model
         'difficulty',
         'duration',
         'category',
-        'course_image',
+        'thumbnail_url',
         'created_by',
     ];
 

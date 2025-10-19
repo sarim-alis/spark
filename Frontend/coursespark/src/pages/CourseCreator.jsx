@@ -83,7 +83,7 @@ export default function CourseCreator() {
       
       // Add image if selected
       if (formData.courseImage) {
-        formDataToSend.append('course_image', formData.courseImage);
+        formDataToSend.append('thumbnail_url', formData.courseImage);
       }
 
       // Save to backend API

@@ -50,7 +50,7 @@ class CourseController extends Controller
             'difficulty' => 'nullable|string|max:255',
             'duration' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:255',
-            'course_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+            'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
         ]);
 
         // Get authenticated user ID
@@ -64,7 +64,7 @@ class CourseController extends Controller
         }
 
         // Handle image upload to Cloudinary
-        if ($request->hasFile('course_image')) {
+        if ($request->hasFile('thumbnail_url')) {
             try {
                 $cloudinary = new Cloudinary([
                     'cloud' => [
@@ -74,13 +74,13 @@ class CourseController extends Controller
                     ]
                 ]);
 
-                $uploadedFile = $request->file('course_image');
+                $uploadedFile = $request->file('thumbnail_url');
                 $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
                     'folder' => 'courses',
                     'resource_type' => 'image'
                 ]);
 
-                $validated['course_image'] = $result['secure_url'];
+                $validated['thumbnail_url'] = $result['secure_url'];
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
@@ -130,11 +130,11 @@ class CourseController extends Controller
             'difficulty' => 'nullable|string|max:255',
             'duration' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:255',
-            'course_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         // Handle image upload to Cloudinary
-        if ($request->hasFile('course_image')) {
+        if ($request->hasFile('thumbnail_url')) {
             try {
                 $cloudinary = new Cloudinary([
                     'cloud' => [
@@ -144,13 +144,13 @@ class CourseController extends Controller
                     ]
                 ]);
 
-                $uploadedFile = $request->file('course_image');
+                $uploadedFile = $request->file('thumbnail_url');
                 $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
                     'folder' => 'courses',
                     'resource_type' => 'image'
                 ]);
 
-                $validated['course_image'] = $result['secure_url'];
+                $validated['thumbnail_url'] = $result['secure_url'];
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
