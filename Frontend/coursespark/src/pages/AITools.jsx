@@ -9,6 +9,7 @@ import { FileText, Award, Loader2, Download, Sparkles, Lock, Star } from 'lucide
 import { InvokeLLM } from '@/api/integrations';
 import { User } from '@/api/entities';
 import ReactMarkdown from 'react-markdown';
+import { generateNotesWithAI } from '@/services/aiNotesGenerator';
 
 
 // Frontend.
@@ -160,25 +161,15 @@ function NotesGenerator() {
     setNotes('');
 
     try {
-      const prompt = `Create ${depth} study notes on the topic: "${topic}"
-
-Please include:
-- Clear definition and overview
-- Key concepts and principles
-- Important examples and applications
-- Common misconceptions to avoid
-- Summary of main points
-- Suggested further reading or practice
-
-Format the notes in a clear, organized manner with headers and bullet points.`;
-
-      const result = await InvokeLLM({
-        prompt,
-        add_context_from_internet: true
-      });
-
-      setNotes(result);
+      const result = await generateNotesWithAI(topic, depth);
+      
+      if (result.success) {
+        setNotes(result.data);
+      } else {
+        setNotes('Error generating notes. Please try again.');
+      }
     } catch (error) {
+      console.error('Notes generation error:', error);
       setNotes('Error generating notes. Please try again.');
     }
     setIsGenerating(false);
@@ -218,9 +209,8 @@ Format the notes in a clear, organized manner with headers and bullet points.`;
             <select
               value={depth}
               onChange={(e) => setDepth(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
-              <option value="brief">Brief Overview</option>
               <option value="comprehensive">Comprehensive</option>
               <option value="detailed">Highly Detailed</option>
             </select>
