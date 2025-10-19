@@ -32,6 +32,9 @@ class Course extends Model
         'price',
         'thumbnail_url',
         'created_by',
+        'is_published',
+        'total_students',
+        'total_sales',
     ];
 
     /**
@@ -43,6 +46,9 @@ class Course extends Model
         'lessons' => 'array',
         'duration_hours' => 'float',
         'price' => 'float',
+        'is_published' => 'boolean',
+        'total_students' => 'integer',
+        'total_sales' => 'float',
     ];
 
     /**

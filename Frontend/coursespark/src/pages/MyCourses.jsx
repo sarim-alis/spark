@@ -1,37 +1,36 @@
 // Imports.
-import { useEffect, useState, useCallback } from 'react';
-import { Course, User } from '@/api/entities';
+import { useEffect, useState, useCallback, useContext } from 'react';
+import { courseAPI } from '@/services/courseApi';
+import { AuthContext } from '@/context/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import MyCourseCard from '@/components/my-courses/MyCourseCard';
 import MyCourseRow from '@/components/my-courses/MyCourseRow';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Grid3x3, List, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { message } from 'antd';
 
 
 // Frontend.
 export default function MyCourses() {
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState('grid'); // 'grid' | 'list'
+  const [searchQuery, setSearchQuery] = useState('');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const u = await User.me();
-      setUser(u);
-      // Filter by creator email when available; fallback to list().
-      let data = [];
-      try {
-        data = await Course.filter({ created_by: u.email });
-      } catch {
-        data = await Course.list();
-      }
-      setCourses(data || []);
+      // Fetch courses from Laravel API
+      const response = await courseAPI.list();
+      const coursesData = response.data.data || [];
+      setCourses(coursesData);
     } catch (e) {
       console.error('Failed to load courses', e);
+      message.error('Failed to load courses');
       setCourses([]);
     }
     setIsLoading(false);
@@ -40,17 +39,27 @@ export default function MyCourses() {
   useEffect(() => { loadData(); }, [loadData]);
 
   // Handle status change.
-  const handleStatusChange = (id, published) => {
-    // Dev mode: update local state only (mockCourse has no update)
-    setCourses(prev => prev.map(c => c.id === id ? { ...c, is_published: published } : c));
-    console.log('Publish toggle (dev only):', { id, published });
+  const handleStatusChange = async (id, published) => {
+    try {
+      await courseAPI.update(id, { is_published: published });
+      setCourses(prev => prev.map(c => c.id === id ? { ...c, is_published: published } : c));
+      message.success(`Course ${published ? 'published' : 'unpublished'} successfully`);
+    } catch (error) {
+      console.error('Failed to update course status', error);
+      message.error('Failed to update course status');
+    }
   };
 
   // Handle delete.
-  const handleDelete = (id) => {
-    // Dev mode: remove locally
-    setCourses(prev => prev.filter(c => c.id !== id));
-    console.log('Delete course (dev only):', { id });
+  const handleDelete = async (id) => {
+    try {
+      await courseAPI.delete(id);
+      setCourses(prev => prev.filter(c => c.id !== id));
+      message.success('Course deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete course', error);
+      message.error('Failed to delete course');
+    }
   };
 
   if (isLoading) {
@@ -61,50 +70,82 @@ export default function MyCourses() {
     );
   }
 
+  // Filter courses based on search query
+  const filteredCourses = courses.filter(course => 
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (course.description && course.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">My Courses</h1>
-          <p className="text-slate-600 text-sm">Manage and edit your courses</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">My Courses</h1>
+          <p className="text-slate-600 text-sm mt-1">Manage, edit, and track your course performance.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <Link to={createPageUrl('CourseCreator')}>
+          <Button className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
+            <PlusCircle className="w-4 h-4 mr-2" /> Create New Course
+          </Button>
+        </Link>
+      </div>
+
+      {/* Search and View Toggle */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="Search your courses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-slate-200"
+          />
+        </div>
+        <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
           <Button
-            variant={view === 'grid' ? 'default' : 'outline'}
+            variant="ghost"
             size="sm"
             onClick={() => setView('grid')}
-          >Grid</Button>
+            className={view === 'grid' ? 'bg-slate-700 text-white hover:bg-slate-700 hover:text-white' : 'text-slate-600 hover:text-slate-900'}
+          >
+            <Grid3x3 className="w-4 h-4 mr-1" /> Grid
+          </Button>
           <Button
-            variant={view === 'list' ? 'default' : 'outline'}
+            variant="ghost"
             size="sm"
             onClick={() => setView('list')}
-          >List</Button>
-          <Link to={createPageUrl('CourseCreator')}>
-            <Button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-              <PlusCircle className="w-4 h-4 mr-2" /> New Course
-            </Button>
-          </Link>
+            className={view === 'list' ? 'bg-slate-700 text-white hover:bg-slate-700 hover:text-white' : 'text-slate-600 hover:text-slate-900'}
+          >
+            <List className="w-4 h-4 mr-1" /> List
+          </Button>
         </div>
       </div>
 
+      {/* Courses Display */}
       {courses.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-slate-600 mb-4">You don't have any courses yet.</p>
+        <Card className="p-12 text-center border-dashed border-2">
+          <p className="text-slate-600 mb-4 text-lg">You don't have any courses yet.</p>
           <Link to={createPageUrl('CourseCreator')}>
-            <Button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
               <PlusCircle className="w-4 h-4 mr-2" /> Create your first course
             </Button>
           </Link>
         </Card>
+      ) : filteredCourses.length === 0 ? (
+        <Card className="p-12 text-center">
+          <p className="text-slate-600 text-lg">No courses found matching "{searchQuery}"</p>
+        </Card>
       ) : view === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {courses.map(c => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredCourses.map(c => (
             <MyCourseCard key={c.id} course={c} onStatusChange={handleStatusChange} onDelete={handleDelete} />
           ))}
         </div>
       ) : (
-        <div className="space-y-3">
-          {courses.map(c => (
+        <div className="space-y-4">
+          {filteredCourses.map(c => (
             <MyCourseRow key={c.id} course={c} onStatusChange={handleStatusChange} onDelete={handleDelete} />
           ))}
         </div>
