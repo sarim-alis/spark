@@ -1,10 +1,8 @@
-// Toggle this to switch between real API and mock data
-const USE_API = false; // Set to true to use OpenAI API, false to use mock data
-
-// Read OpenAI API key from environment variable
+// Imports.
+const USE_API = false;
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-// Mock course generator as fallback
+// Generate mock course.
 const generateMockCourse = (formData) => {
   const numLessons = Math.ceil(formData.duration / 1.5);
   const lessons = [];
@@ -25,9 +23,9 @@ const generateMockCourse = (formData) => {
   };
 };
 
+// Generate course wtih ai.
 export const generateCourseWithAI = async (formData) => {
   try {
-    // If USE_API is false, return mock data immediately
     if (!USE_API) {
       console.log('🎭 Using mock data (USE_API = false)');
       const mockData = generateMockCourse(formData);
@@ -134,7 +132,7 @@ Return ONLY the JSON object, no additional text.`;
     const courseData = JSON.parse(jsonText);
     console.log('✨ Parsed course data:', courseData);
     
-    // Add order to lessons
+    // Add order to lessons.
     courseData.lessons = courseData.lessons.map((lesson, index) => ({
       ...lesson,
       order: index + 1
