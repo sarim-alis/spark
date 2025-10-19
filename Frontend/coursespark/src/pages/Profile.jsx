@@ -57,21 +57,15 @@ export default function ProfilePage() {
     setIsSaving(true);
     
     try {
-      const updatedData = {
-        name: user.name,
-        bio: user.bio || "",
-      };
+      const updatedData = {name: user.name, bio: user.bio || ""};
 
       // Add profile picture file if selected
-      if (profilePictureFile) {
-        updatedData.profile_picture_url = profilePictureFile;
-      }
-
+      if (profilePictureFile) { updatedData.profile_picture_url = profilePictureFile;}
       const response = await userAPI.updateProfile(updatedData);
       
       if (response.data.success) {
         message.success("Profile updated successfully!");
-        // Update localStorage with new data
+        // Update localStorage with new data.
         localStorage.setItem('auth_user', JSON.stringify(response.data.data));
         setUser(response.data.data);
         setProfilePictureFile(null);
@@ -89,13 +83,8 @@ export default function ProfilePage() {
     setUser(prev => ({ ...prev, [name]: value }));
   };
 
-  if (isLoading) {
-    return <div className="p-8">Loading...</div>;
-  }
-  
-  if (!user) {
-    return <div className="p-8">Could not load user profile. Please try again.</div>
-  }
+  if (isLoading) { return <div className="p-8">Loading...</div>;}
+  if (!user) {return <div className="p-8">Could not load user profile. Please try again.</div>}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -116,48 +105,29 @@ export default function ProfilePage() {
                 <AvatarFallback className="text-2xl">{user.name?.[0] || 'U'}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
-                <label htmlFor="profile-picture-upload" className="cursor-pointer">
-                  <Button as="span" variant="outline">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Change Photo
-                  </Button>
-                </label>
+                <Button variant="outline" onClick={() => document.getElementById('profile-picture-upload').click()} type="button">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Change Photo
+                </Button>
                 <input id="profile-picture-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                <p className="text-xs text-slate-500">JPG, GIF or PNG. 1MB max.</p>
+                <p className="text-xs text-slate-500">JPG, GIF or PNG. 5MB max.</p>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4">``
               <div>
                 <label className="text-sm font-medium text-slate-700">Name</label>
-                <Input
-                  name="name"
-                  value={user.name || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
+                <Input name="name" value={user.name || ""} onChange={handleInputChange} className="mt-1" />
               </div>
 
               <div>
                 <label className="text-sm font-medium text-slate-700">Email Address</label>
-                <Input
-                  value={user.email || ""}
-                  readOnly
-                  disabled
-                  className="mt-1 bg-slate-100 cursor-not-allowed"
-                />
+                <Input value={user.email || ""} readOnly disabled className="mt-1 bg-slate-100 cursor-not-allowed" />
               </div>
 
               <div>
                 <label className="text-sm font-medium text-slate-700">Your Bio</label>
-                <Textarea
-                  name="bio"
-                  placeholder="Tell us a little about yourself"
-                  value={user.bio || ""}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                  rows={4}
-                />
+                <Textarea name="bio" placeholder="Tell us a little about yourself" value={user.bio || ""} onChange={handleInputChange} className="mt-1" rows={4} />
               </div>
             </div>
 
