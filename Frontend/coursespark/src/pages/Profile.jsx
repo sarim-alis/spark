@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from "react";
+// Imports.
+import { useState, useEffect } from "react";
 import { User } from "@/api/entities";
 import { UploadFile } from "@/api/integrations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Save, User as UserIcon, Upload } from "lucide-react";
 
+
+// Frontend.
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
 
+  // Fetch user.
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -27,12 +31,14 @@ export default function ProfilePage() {
     fetchUser();
   }, []);
 
+  // Handle file change.
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setProfilePictureFile(e.target.files[0]);
     }
   };
 
+  // Handle save.
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);
