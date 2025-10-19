@@ -327,29 +327,45 @@ function ResumeBuilder() {
     setResume('');
 
     try {
-      const prompt = `Create a professional resume based on the following information:
+      const prompt = `Create a professional ATS-friendly resume based on the following information:
 
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Professional Summary: ${formData.summary}
-Work Experience: ${formData.experience}
-Education: ${formData.education}
-Skills: ${formData.skills}
+**Full Name:** ${formData.name}
+**Email:** ${formData.email}
+**Phone:** ${formData.phone}
+
+**Professional Summary:**
+${formData.summary}
+
+**Work Experience:**
+${formData.experience}
+
+**Education:**
+${formData.education}
+
+**Skills:**
+${formData.skills}
 
 Please format this as a professional resume with:
-- Clear section headers
-- Bullet points for achievements
-- Professional language
-- ATS-friendly format
-- Modern, clean structure`;
+- Name at the top in large, bold text
+- Contact information (Email, Phone) on the second line
+- Clear section headers (Summary, Technical Skills, Experience, Projects, Education) in bold
+- Bullet points (•) for all achievements and responsibilities
+- Professional language with action verbs
+- Quantified achievements where possible (percentages, numbers)
+- ATS-friendly format (no tables, simple formatting)
+- Modern, clean structure
+- Each job/project should have: Title, Company/Context, Date Range, and bullet points
+
+Format the output in plain text with clear spacing and structure.`;
 
       const result = await InvokeLLM({
         prompt,
         add_context_from_internet: false
       });
 
-      setResume(result);
+      // InvokeLLM returns an object with {response, usage}, extract the response text
+      const resumeText = typeof result === 'object' && result.response ? result.response : result;
+      setResume(resumeText);
     } catch (error) {
       setResume('Error generating resume. Please try again.');
     }
@@ -357,13 +373,54 @@ Please format this as a professional resume with:
   };
 
   const handleDownload = () => {
-    const element = document.createElement('a');
-    const file = new Blob([resume], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${formData.name.replace(/\s+/g, '_')}_resume.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    // Create a temporary div to render resume as HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.style.padding = '40px';
+    tempDiv.style.fontFamily = 'Arial, sans-serif';
+    tempDiv.style.lineHeight = '1.6';
+    tempDiv.style.color = '#333';
+    tempDiv.style.maxWidth = '800px';
+    tempDiv.style.margin = '0 auto';
+    
+    // Convert resume text to HTML with proper formatting
+    let html = resume
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^(Summary:|Technical Skills:|Experience:|Projects:|Education:|Skills:)/gm, '<h3 style="color: #7c3aed; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #7c3aed; padding-bottom: 5px;">$1</h3>')
+      .replace(/^• (.*?)$/gm, '<li style="margin-left: 20px;">$1</li>')
+      .replace(/^- (.*?)$/gm, '<li style="margin-left: 20px;">$1</li>')
+      .replace(/\n\n/g, '</p><p style="margin: 10px 0;">')
+      .replace(/\n/g, '<br>');
+    
+    // Add name styling at the top
+    html = html.replace(new RegExp(`^${formData.name}`, 'i'), `<h1 style="color: #6d28d9; font-weight: bold; margin-bottom: 5px; font-size: 28px;">${formData.name}</h1>`);
+    
+    tempDiv.innerHTML = html;
+    document.body.appendChild(tempDiv);
+    
+    // Use html2pdf to generate PDF
+    import('html2pdf.js').then((html2pdf) => {
+      const opt = {
+        margin: 0.5,
+        filename: `${formData.name.replace(/\s+/g, '_')}_resume.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      html2pdf.default().set(opt).from(tempDiv).save().then(() => {
+        document.body.removeChild(tempDiv);
+      });
+    }).catch(() => {
+      // Fallback to text download if html2pdf fails
+      document.body.removeChild(tempDiv);
+      const element = document.createElement('a');
+      const file = new Blob([resume], { type: 'text/plain' });
+      element.href = URL.createObjectURL(file);
+      element.download = `${formData.name.replace(/\s+/g, '_')}_resume.txt`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    });
   };
 
   return (
@@ -393,28 +450,28 @@ Please format this as a professional resume with:
             onChange={(e) => handleInputChange('phone', e.target.value)}
           />
           <Textarea
-            placeholder="Professional Summary (2-3 sentences)"
+            placeholder="Professional Summary (2-3 sentences about your expertise and experience)"
             value={formData.summary}
             onChange={(e) => handleInputChange('summary', e.target.value)}
             rows={3}
           />
           <Textarea
-            placeholder="Work Experience (one per line)"
+            placeholder="Work Experience (Format: Job Title | Company | Date Range\nBullet points of achievements and responsibilities)"
             value={formData.experience}
             onChange={(e) => handleInputChange('experience', e.target.value)}
-            rows={4}
+            rows={6}
           />
           <Textarea
-            placeholder="Education (degrees, institutions)"
+            placeholder="Education (Format: Degree | Institution | Year/CGPA)"
             value={formData.education}
             onChange={(e) => handleInputChange('education', e.target.value)}
-            rows={2}
+            rows={3}
           />
           <Textarea
-            placeholder="Skills (comma-separated)"
+            placeholder="Skills (Categorize: Frontend, Backend, DevOps, Database, etc.)"
             value={formData.skills}
             onChange={(e) => handleInputChange('skills', e.target.value)}
-            rows={2}
+            rows={3}
           />
 
           <Button
@@ -441,9 +498,13 @@ Please format this as a professional resume with:
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Generated Resume</CardTitle>
           {resume && (
-            <Button onClick={handleDownload} variant="outline" size="sm">
+            <Button 
+              onClick={handleDownload} 
+              size="sm"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+            >
               <Download className="w-4 h-4 mr-2" />
-              Download
+              Download PDF
             </Button>
           )}
         </CardHeader>

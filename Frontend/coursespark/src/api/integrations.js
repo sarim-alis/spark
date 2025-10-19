@@ -28,6 +28,56 @@ export const InvokeLLM = async ({ prompt, model = 'gpt-4' }) => {
     };
   }
   
+  if (prompt.includes('resume') || prompt.includes('Professional Summary')) {
+    // Extract name from prompt
+    const nameMatch = prompt.match(/\*\*Full Name:\*\* (.+)/);
+    const emailMatch = prompt.match(/\*\*Email:\*\* (.+)/);
+    const phoneMatch = prompt.match(/\*\*Phone:\*\* (.+)/);
+    const name = nameMatch ? nameMatch[1].trim() : 'Your Name';
+    const email = emailMatch ? emailMatch[1].trim() : 'email@example.com';
+    const phone = phoneMatch ? phoneMatch[1].trim() : '(123) 456-7890';
+    
+    return {
+      response: `${name}
+${email} | ${phone}
+
+Summary:
+Full stack software developer with expertise in front-end and back-end development, experienced in leading cross-functional teams and delivering high-quality solutions.
+
+Technical Skills:
+• Frontend — React.js, Redux, Next.js, TypeScript, HTML5, CSS3, Tailwind CSS
+• Backend — Node.js, Express.js, Python, Django, REST APIs
+• DevOps — Docker, Kubernetes, CI/CD, AWS, Digital Ocean
+• Database — MongoDB, PostgreSQL, MySQL, Redis
+
+Experience:
+
+Senior Developer | Tech Company | Jan 2023 - Present
+• Developed 10+ dynamic projects utilizing React and modern frameworks
+• Reduced deployment errors by 40 percent through automated testing
+• Led team of 5 developers resulting in 30 percent increase in efficiency
+• Implemented responsive design improving user engagement by 25 percent
+
+Full Stack Developer | Software Solutions | Jun 2021 - Dec 2022
+• Successfully completed over 3 full stack projects from conception to deployment
+• Optimized application performance reducing load times by up to 20 percent
+• Integrated MongoDB resulting in 15 percent improvement in data retrieval
+• Collaborated with cross-functional teams to deliver high-quality products
+
+Education:
+
+BS Computer Science | University Name | CGPA 3.6 / 4.0
+Graduated: 2021
+
+Skills & Certifications:
+• AWS Certified Developer
+• Agile/Scrum Methodologies
+• Git Version Control
+• Problem Solving & Team Leadership`,
+      usage: { tokens: 300 }
+    };
+  }
+  
   return {
     response: 'This is a simulated AI response. In production, this would connect to OpenAI, Anthropic, or your preferred LLM.',
     usage: { tokens: 50 }
