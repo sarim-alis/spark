@@ -69,6 +69,9 @@ export default function ProfilePage() {
         localStorage.setItem('auth_user', JSON.stringify(response.data.data));
         setUser(response.data.data);
         setProfilePictureFile(null);
+        
+        // Dispatch custom event to notify Layout component
+        window.dispatchEvent(new Event('auth_user_updated'));
       }
     } catch (error) {
       console.error("Error updating profile:", error);

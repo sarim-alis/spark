@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { User as UserEntity } from "@/api/entities";
+import { userAPI } from "@/services/api";
 import BrandLogo from "@/components/common/BrandLogo";
 
 const navigationItems = [
@@ -111,10 +112,53 @@ export default function Layout({ children, currentPageName }) {
     loadUser();
   }, []);
 
+  // Reload user when location changes (e.g., navigating back from Profile)
+  React.useEffect(() => {
+    const authUser = localStorage.getItem('auth_user');
+    if (authUser) {
+      setUser(JSON.parse(authUser));
+    }
+  }, [location.pathname]);
+
+  // Listen for storage events to update user when localStorage changes
+  React.useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'auth_user' && e.newValue) {
+        setUser(JSON.parse(e.newValue));
+      }
+    };
+
+    // Custom event for same-tab updates
+    const handleAuthUpdate = (e) => {
+      const authUser = localStorage.getItem('auth_user');
+      if (authUser) {
+        setUser(JSON.parse(authUser));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth_user_updated', handleAuthUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth_user_updated', handleAuthUpdate);
+    };
+  }, []);
+
   const loadUser = async () => {
     try {
-      const userData = await UserEntity.me();
-      setUser(userData);
+      // Get user from localStorage first for instant display
+      const authUser = localStorage.getItem('auth_user');
+      if (authUser) {
+        setUser(JSON.parse(authUser));
+      }
+      
+      // Then fetch from API to get latest data
+      const response = await userAPI.getProfile();
+      if (response.data.success) {
+        setUser(response.data.data);
+        localStorage.setItem('auth_user', JSON.stringify(response.data.data));
+      }
     } catch (error) {
       console.log("User not authenticated");
     }
@@ -271,16 +315,16 @@ export default function Layout({ children, currentPageName }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="w-full rounded-lg transition-colors hover:bg-slate-700/50">
-                  <div className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3">
-                    <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-violet-400/30">
                       {user.profile_picture_url ? (
-                        <img src={user.profile_picture_url} alt={user.full_name} className="w-full h-full object-cover rounded-full" />
+                        <img src={user.profile_picture_url} alt={user.name} className="w-full h-full object-cover rounded-full" />
                       ) : (
-                        <User className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+                        <User className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0 hidden lg:block text-left">
-                      <p className="font-semibold text-slate-200 text-sm truncate">{user.full_name}</p>
+                      <p className="font-semibold text-slate-200 text-sm truncate capitalize">{user.name}</p>
                       <p className="text-xs text-slate-400 truncate">{user.email}</p>
                     </div>
                   </div>
@@ -326,10 +370,10 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             {user ? (
-               <Link to={createPageUrl('Profile')}>
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <Link to={createPageUrl('Profile')}>
+                <div className="w-9 h-9 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center ring-2 ring-violet-400/30 hover:ring-violet-400/50 transition-all cursor-pointer">
                   {user.profile_picture_url ? (
-                    <img src={user.profile_picture_url} alt={user.full_name} className="w-full h-full object-cover rounded-full" />
+                    <img src={user.profile_picture_url} alt={user.name} className="w-full h-full object-cover rounded-full" />
                   ) : (
                     <User className="w-4 h-4 text-white" />
                   )}
