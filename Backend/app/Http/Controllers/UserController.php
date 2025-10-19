@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Cloudinary\Cloudinary;
 
 class UserController extends Controller
 {
@@ -19,12 +20,42 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string',
+            'profile_picture_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'bio' => 'nullable|string|max:255',
         ]);
+
+        // Handle profile picture upload to Cloudinary
+        if ($request->hasFile('profile_picture_url')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('profile_picture_url');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'profiles',
+                    'resource_type' => 'image'
+                ]);
+
+                $data['profile_picture_url'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+                ], 500);
+            }
+        }
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
+            'profile_picture_url' => $data['profile_picture_url'] ?? null,
+            'bio' => $data['bio'] ?? null,
         ]);
 
         // If Sanctum is available, return a personal access token so frontend can auto-login
@@ -47,7 +78,35 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,'.$user->id,
             'password' => 'sometimes|string',
+            'profile_picture_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'bio' => 'nullable|string|max:255',
         ]);
+
+        // Handle profile picture upload to Cloudinary
+        if ($request->hasFile('profile_picture_url')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('profile_picture_url');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'profiles',
+                    'resource_type' => 'image'
+                ]);
+
+                $data['profile_picture_url'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+                ], 500);
+            }
+        }
 
         if (isset($data['password'])) {
             // Hash password.
