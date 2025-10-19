@@ -14,12 +14,18 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Course::with('creator');
-
-        // Filter by created_by if provided
-        if ($request->has('created_by')) {
-            $query->where('created_by', $request->created_by);
+        // Get authenticated user ID
+        $userId = Auth::id();
+        
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
         }
+
+        // Only show courses created by the logged-in user
+        $query = Course::with('creator')->where('created_by', $userId);
 
         // Filter by category if provided
         if ($request->has('category')) {
