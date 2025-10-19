@@ -14,7 +14,7 @@ export default function CoursePromptForm({ onGenerate, isGenerating }) {
     level: "beginner",
     duration: 4,
     category: "business",
-    courseImage: null
+    thumbnailUrl: null
   });
 
   const handleSubmit = (e) => {
@@ -152,11 +152,11 @@ export default function CoursePromptForm({ onGenerate, isGenerating }) {
             <Input
               type="file"
               accept="image/*"
-              onChange={(e) => setFormData({...formData, courseImage: e.target.files[0]})}
+              onChange={(e) => setFormData({...formData, thumbnailUrl: e.target.files[0]})}
               className="text-xs md:text-sm"
             />
-            {formData.courseImage && (
-              <p className="text-xs text-slate-600">Selected: {formData.courseImage.name}</p>
+            {formData.thumbnailUrl && (
+              <p className="text-xs text-slate-600">Selected: {formData.thumbnailUrl.name}</p>
             )}
           </div>
 

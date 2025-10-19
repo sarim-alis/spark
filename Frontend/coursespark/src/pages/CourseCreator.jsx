@@ -37,8 +37,8 @@ export default function CourseCreator() {
         const aiCourse = result.data;
         
         // Create preview URL for uploaded image
-        const imagePreviewUrl = form.courseImage 
-          ? URL.createObjectURL(form.courseImage)
+        const imagePreviewUrl = form.thumbnailUrl 
+          ? URL.createObjectURL(form.thumbnailUrl)
           : 'https://images.unsplash.com/photo-1517512006864-9d8466f3b542?w=800';
         
         setDraft({
@@ -82,8 +82,8 @@ export default function CourseCreator() {
       formDataToSend.append('category', formData.category);
       
       // Add image if selected
-      if (formData.courseImage) {
-        formDataToSend.append('thumbnail_url', formData.courseImage);
+      if (formData.thumbnailUrl) {
+        formDataToSend.append('thumbnail_url', formData.thumbnailUrl);
       }
 
       // Save to backend API
