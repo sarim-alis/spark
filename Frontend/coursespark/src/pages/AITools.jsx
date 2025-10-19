@@ -176,13 +176,51 @@ function NotesGenerator() {
   };
 
   const handleDownload = () => {
-    const element = document.createElement('a');
-    const file = new Blob([notes], { type: 'text/markdown' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${topic.replace(/\s+/g, '_')}_notes.md`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    // Create a temporary div to render markdown as HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.style.padding = '40px';
+    tempDiv.style.fontFamily = 'Arial, sans-serif';
+    tempDiv.style.lineHeight = '1.6';
+    tempDiv.style.color = '#333';
+    
+    // Convert markdown to HTML (basic conversion)
+    let html = notes
+      .replace(/### \*\*(.*?)\*\*/g, '<h3 style="color: #7c3aed; font-weight: bold; margin-top: 20px;">$1</h3>')
+      .replace(/## \*\*(.*?)\*\*/g, '<h2 style="color: #8b5cf6; font-weight: bold; margin-top: 25px;">$1</h2>')
+      .replace(/# \*\*(.*?)\*\*/g, '<h1 style="color: #6d28d9; font-weight: bold; margin-bottom: 20px;">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^- (.*?)$/gm, '<li>$1</li>')
+      .replace(/^(\d+)\. (.*?)$/gm, '<li>$2</li>')
+      .replace(/\n\n/g, '</p><p style="margin: 10px 0;">')
+      .replace(/\n/g, '<br>');
+    
+    tempDiv.innerHTML = `<div style="max-width: 800px; margin: 0 auto;">${html}</div>`;
+    document.body.appendChild(tempDiv);
+    
+    // Use html2pdf to generate PDF
+    import('html2pdf.js').then((html2pdf) => {
+      const opt = {
+        margin: 1,
+        filename: `${topic.replace(/\s+/g, '_')}_notes.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      html2pdf.default().set(opt).from(tempDiv).save().then(() => {
+        document.body.removeChild(tempDiv);
+      });
+    }).catch(() => {
+      // Fallback to markdown download if html2pdf fails
+      document.body.removeChild(tempDiv);
+      const element = document.createElement('a');
+      const file = new Blob([notes], { type: 'text/markdown' });
+      element.href = URL.createObjectURL(file);
+      element.download = `${topic.replace(/\s+/g, '_')}_notes.md`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    });
   };
 
   return (
@@ -240,9 +278,13 @@ function NotesGenerator() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Generated Notes</CardTitle>
           {notes && (
-            <Button onClick={handleDownload} variant="outline" size="sm">
+            <Button 
+              onClick={handleDownload} 
+              size="sm"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+            >
               <Download className="w-4 h-4 mr-2" />
-              Download
+              Download PDF
             </Button>
           )}
         </CardHeader>
