@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+// Imports.
+import { useEffect, useState, useCallback } from 'react';
 import { Course, User } from '@/api/entities';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +9,8 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { PlusCircle } from 'lucide-react';
 
+
+// Frontend.
 export default function MyCourses() {
   const [user, setUser] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -19,7 +22,7 @@ export default function MyCourses() {
     try {
       const u = await User.me();
       setUser(u);
-      // Filter by creator email when available; fallback to list()
+      // Filter by creator email when available; fallback to list().
       let data = [];
       try {
         data = await Course.filter({ created_by: u.email });
@@ -36,12 +39,14 @@ export default function MyCourses() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // Handle status change.
   const handleStatusChange = (id, published) => {
     // Dev mode: update local state only (mockCourse has no update)
     setCourses(prev => prev.map(c => c.id === id ? { ...c, is_published: published } : c));
     console.log('Publish toggle (dev only):', { id, published });
   };
 
+  // Handle delete.
   const handleDelete = (id) => {
     // Dev mode: remove locally
     setCourses(prev => prev.filter(c => c.id !== id));
