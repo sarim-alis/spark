@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+// Imports.
+import { useState, useEffect, useCallback } from "react";
 import { Course } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Button } from "@/components/ui/button";
@@ -10,40 +11,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
+
+// Card.
 function CourseCard({ course }) {
   return (
   <Link to={`/courseviewer/${course.id}`}>
       <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group h-full">
         <div className="relative h-48 overflow-hidden rounded-t-lg">
-          <img 
-            src={course.thumbnail_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400'} 
-            alt={course.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          <img src={course.thumbnail_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400'} alt={course.title}className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           {course.category && (
-            <Badge className="absolute top-3 right-3 bg-white/90 text-slate-800">
-              {course.category}
-            </Badge>
+            <Badge className="absolute top-3 right-3 bg-white/90 text-slate-800">{course.category}</Badge>
           )}
         </div>
         
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-2">
-            {course.title}
-          </h3>
-          
-          <p className="text-sm text-slate-600 mb-3 line-clamp-2">
-            {course.description}
-          </p>
+          <h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-2">{course.title}</h3>
+          <p className="text-sm text-slate-600 mb-3 line-clamp-2">{course.description}</p>
 
           <div className="flex items-center justify-between pt-3 border-t">
-            <span className="text-2xl font-bold text-purple-600">
-              ${course.price || 0}
-            </span>
+            <span className="text-2xl font-bold text-purple-600">${course.price || 0}</span>
             {course.level && (
-              <Badge variant="outline" className="text-xs">
-                {course.level}
-              </Badge>
+              <Badge variant="outline" className="text-xs">{course.level}</Badge>
             )}
           </div>
         </CardContent>
@@ -52,6 +40,8 @@ function CourseCard({ course }) {
   );
 }
 
+
+// Frontend.
 export default function Storefront() {
   const [creator, setCreator] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -60,6 +50,7 @@ export default function Storefront() {
   const [isOwner, setIsOwner] = useState(false);
   const location = useLocation();
 
+  // Load store front data.
   const loadStorefrontData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -107,6 +98,7 @@ export default function Storefront() {
     loadStorefrontData();
   }, [loadStorefrontData]);
 
+  // Handle share.
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
@@ -114,6 +106,7 @@ export default function Storefront() {
     });
   };
 
+  // Handle unpublish course.
   const handleUnpublishCourse = async (courseId) => {
     if (window.confirm("Are you sure you want to remove this course from your storefront?")) {
       try {
