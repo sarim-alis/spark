@@ -1,6 +1,6 @@
 // Imports.
 import { useState, useEffect, useCallback } from "react";
-import { Course } from "@/api/entities";
+import { courseAPI } from "@/services/courseApi";
 import { User } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,10 +81,13 @@ export default function Storefront() {
       setCreator(creatorData);
       setIsOwner(currentUser?.email === creatorEmail);
 
-      const creatorCourses = await Course.filter({
+      // Fetch all published courses created by this specific user using API
+      const response = await courseAPI.list({
         created_by: creatorEmail,
-        is_published: true,
-      }, '-created_date');
+        is_published: 1
+      });
+      const creatorCourses = response.data.data || [];
+      
       setCourses(creatorCourses);
     } catch (error) {
       console.error("Error loading storefront data:", error);
@@ -110,7 +113,7 @@ export default function Storefront() {
   const handleUnpublishCourse = async (courseId) => {
     if (window.confirm("Are you sure you want to remove this course from your storefront?")) {
       try {
-        await Course.update(courseId, { is_published: false });
+        await courseAPI.togglePublish(courseId);
         setCourses(courses.filter(c => c.id !== courseId));
         alert("Course removed from storefront successfully!");
       } catch (error) {
