@@ -81,9 +81,8 @@ export default function Storefront() {
       setCreator(creatorData);
       setIsOwner(currentUser?.email === creatorEmail);
 
-      // Fetch all published courses created by this specific user using API
+      // Fetch only published courses (is_published = 1) for the logged-in user
       const response = await courseAPI.list({
-        created_by: creatorEmail,
         is_published: 1
       });
       const creatorCourses = response.data.data || [];

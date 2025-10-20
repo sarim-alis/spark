@@ -24,8 +24,13 @@ class CourseController extends Controller
             ], 401);
         }
 
-        // Only show courses created by the logged-in user
+        // Start query with creator relationship
         $query = Course::with('creator')->where('created_by', $userId);
+
+        // Filter by is_published if provided (for storefront showing only published courses)
+        if ($request->has('is_published')) {
+            $query->where('is_published', $request->is_published);
+        }
 
         // Filter by category if provided
         if ($request->has('category')) {
