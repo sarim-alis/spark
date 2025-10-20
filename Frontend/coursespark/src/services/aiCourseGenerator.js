@@ -1,5 +1,5 @@
 // Imports.
-const USE_API = false;
+const USE_API = true;
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 // Generate mock course.
@@ -28,6 +28,8 @@ export const generateCourseWithAI = async (formData) => {
   try {
     if (!USE_API) {
       console.log('🎭 Using mock data (USE_API = false)');
+      // Add small delay to simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const mockData = generateMockCourse(formData);
       return {
         success: true,

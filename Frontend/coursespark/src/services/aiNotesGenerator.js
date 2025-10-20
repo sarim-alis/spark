@@ -275,6 +275,8 @@ export const generateNotesWithAI = async (topic, depth) => {
   try {
     if (!USE_API) {
       console.log('🎭 Using mock data (USE_API = false)');
+      // Add small delay to simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const mockData = generateMockNotes(topic, depth);
       return {
         success: true,
