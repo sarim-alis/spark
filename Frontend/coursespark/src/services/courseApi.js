@@ -25,6 +25,9 @@ export const courseAPI = {
     
     // Delete a course
     delete: (id) => api.delete(`/courses/${id}`),
+    
+    // Toggle course publication status
+    togglePublish: (id) => api.post(`/courses/${id}/toggle-publish`),
 };
 
 export default courseAPI;

@@ -28,4 +28,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('courses/{course}', [CourseController::class, 'update']);
     Route::patch('courses/{course}', [CourseController::class, 'update']);
     Route::delete('courses/{course}', [CourseController::class, 'destroy']);
+    Route::post('courses/{course}/toggle-publish', [CourseController::class, 'togglePublish']);
 });

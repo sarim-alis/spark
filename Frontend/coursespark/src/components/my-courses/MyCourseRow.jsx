@@ -26,7 +26,7 @@ export default function MyCourseRow({ course, onStatusChange, onDelete }) {
         <div className="flex items-center space-x-2">
           <Switch 
             checked={course.is_published} 
-            onCheckedChange={(checked) => onStatusChange(course.id, checked)}
+            onCheckedChange={() => onStatusChange(course.id)}
           />
         </div>
         <DropdownMenu>

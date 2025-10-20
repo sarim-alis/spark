@@ -38,15 +38,16 @@ export default function MyCourses() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Handle status change.
-  const handleStatusChange = async (id, published) => {
+  // Handle status change (toggle).
+  const handleStatusChange = async (id) => {
     try {
-      await courseAPI.update(id, { is_published: published });
-      setCourses(prev => prev.map(c => c.id === id ? { ...c, is_published: published } : c));
-      message.success(`Course ${published ? 'published' : 'unpublished'} successfully`);
+      const response = await courseAPI.togglePublish(id);
+      const updatedCourse = response.data.data;
+      setCourses(prev => prev.map(c => c.id === id ? updatedCourse : c));
+      message.success(response.data.message);
     } catch (error) {
-      console.error('Failed to update course status', error);
-      message.error('Failed to update course status');
+      console.error('Failed to toggle course status', error);
+      message.error('Failed to toggle course status');
     }
   };
 

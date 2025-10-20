@@ -206,4 +206,28 @@ class CourseController extends Controller
             'message' => 'Course deleted successfully'
         ]);
     }
+
+    /**
+     * Toggle course publication status.
+     */
+    public function togglePublish(Course $course)
+    {
+        // Check if user owns the course
+        if ($course->created_by !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized to modify this course'
+            ], 403);
+        }
+
+        // Toggle the is_published status
+        $course->is_published = !$course->is_published;
+        $course->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $course->is_published ? 'Course published successfully' : 'Course unpublished successfully',
+            'data' => $course->load('creator')
+        ]);
+    }
 }

@@ -30,7 +30,7 @@ export default function MyCourseCard({ course, onStatusChange, onDelete }) {
         <div className="flex items-center space-x-2">
           <Switch 
             checked={course.is_published} 
-            onCheckedChange={(checked) => onStatusChange(course.id, checked)}
+            onCheckedChange={() => onStatusChange(course.id)}
             id={`publish-switch-${course.id}`}
           />
           <label htmlFor={`publish-switch-${course.id}`} className="text-xs md:text-sm font-medium text-slate-600">
