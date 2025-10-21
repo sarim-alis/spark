@@ -48,7 +48,7 @@ export default function MyCourseCard({ course, onStatusChange, onDelete }) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to={createPageUrl(`Storefront?creator=${course.created_by}`)} target="_blank" className="flex items-center gap-2 w-full cursor-pointer text-xs md:text-sm">
+              <Link to={createPageUrl("Storefront")} target="_self" className="flex items-center gap-2 w-full cursor-pointer text-xs md:text-sm">
                 <Eye className="w-3 h-3 md:w-4 md:h-4" /> View on Storefront
               </Link>
             </DropdownMenuItem>
