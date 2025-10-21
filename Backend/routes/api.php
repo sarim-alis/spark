@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\InterviewPrepController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -29,4 +30,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('courses/{course}', [CourseController::class, 'update']);
     Route::delete('courses/{course}', [CourseController::class, 'destroy']);
     Route::post('courses/{course}/toggle-publish', [CourseController::class, 'togglePublish']);
+    
+    // Interview Prep
+    Route::get('interview-prep', [InterviewPrepController::class, 'index']);
+    Route::post('interview-prep', [InterviewPrepController::class, 'store']);
+    Route::get('interview-prep/me', [InterviewPrepController::class, 'getUserInterviewPrep']);
+    Route::get('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'show']);
+    Route::put('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'update']);
+    Route::patch('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'update']);
+    Route::delete('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'destroy']);
 });

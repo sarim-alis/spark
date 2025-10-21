@@ -7,6 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { MessageSquare, Sparkles, TrendingUp, Award, Play } from 'lucide-react';
+import { User } from '@/api/entities';
+import axios from 'axios';
+import { generateInterviewQuestionsWithAI, generateInterviewFeedbackWithAI } from '@/services/aiInterviewGenerator';
+import { courseAPI } from '@/services/courseApi';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function InterviewPrep() {
   const [user, setUser] = useState(null);
@@ -24,50 +30,35 @@ export default function InterviewPrep() {
 
   const loadData = async () => {
     try {
-      // Mock user data
-      const userData = {
-        email: 'user@example.com',
-        name: 'John Doe'
-      };
+      // Get authenticated user from localStorage
+      const authUser = localStorage.getItem('auth_user');
+      if (!authUser) {
+        console.error('No authenticated user found');
+        return;
+      }
+      
+      const userData = JSON.parse(authUser);
       setUser(userData);
 
-      // Mock course data
-      const userCourses = [
-        { id: 'course-1', title: 'Course 1' },
-        { id: 'course-2', title: 'Course 2' },
-        { id: 'course-3', title: 'Course 3' }
-      ];
-      setCourses(userCourses);
+      // Get ALL published courses (not just user's courses)
+      const coursesResponse = await courseAPI.list({
+        is_published: 1
+      });
+      const allPublishedCourses = coursesResponse.data.data || [];
+      setCourses(allPublishedCourses);
 
-      // Mock interview prep data
-      const mockInterviewPrep = {
-        id: 'mock-prep-1',
-        user_email: userData.email,
-        job_role: 'Software Developer',
-        course_ids: [],
-        difficulty: 'intermediate',
-        interview_type: 'mixed',
-        total_sessions: 3,
-        average_score: 75,
-        sessions: [
-          {
-            session_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            overall_score: 70,
-            questions: []
-          },
-          {
-            session_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            overall_score: 75,
-            questions: []
-          },
-          {
-            session_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            overall_score: 80,
-            questions: []
-          }
-        ]
-      };
-      setInterviewPrep(mockInterviewPrep);
+      // Get interview prep data from API
+      const token = localStorage.getItem('auth_token');
+      const interviewResponse = await axios.get(`${API_URL}/interview-prep/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (interviewResponse.data.success && interviewResponse.data.data) {
+        setInterviewPrep(interviewResponse.data.data);
+      }
     } catch (error) {
       console.error('Error loading interview prep data:', error);
     }
@@ -76,55 +67,29 @@ export default function InterviewPrep() {
   const startNewSession = async (jobRole, courseIds, difficulty, interviewType) => {
     setIsGenerating(true);
     try {
-      // Mock AI-generated questions
+      // Ensure courseIds is an array
+      const courseIdsArray = Array.isArray(courseIds) ? courseIds : [courseIds];
+      
+      // Get course titles
       const courseTitles = courses
-        .filter(c => courseIds.includes(c.id))
+        .filter(c => courseIdsArray.includes(String(c.id)))
         .map(c => c.title)
-        .join(', ');
+        .join(', ') || 'General Topics';
+
+      // Generate AI interview questions
+      const result = await generateInterviewQuestionsWithAI({
+        jobRole,
+        courseTitles,
+        difficulty,
+        interviewType
+      });
+
+      if (!result.success) {
+        throw new Error('Failed to generate questions');
+      }
 
       const questions = {
-        questions: [
-          {
-            question: `What are the key responsibilities of a ${jobRole}?`,
-            ideal_answer_points: [
-              'Understanding of core technical skills',
-              'Team collaboration and communication',
-              'Problem-solving abilities'
-            ]
-          },
-          {
-            question: `Describe a challenging project you worked on related to ${courseTitles}.`,
-            ideal_answer_points: [
-              'Clear problem statement',
-              'Your approach and solution',
-              'Results and learnings'
-            ]
-          },
-          {
-            question: `How do you stay updated with the latest trends in ${courseTitles}?`,
-            ideal_answer_points: [
-              'Continuous learning habits',
-              'Industry resources and communities',
-              'Practical application of knowledge'
-            ]
-          },
-          {
-            question: `Tell me about a time you had to work under pressure.`,
-            ideal_answer_points: [
-              'Specific situation description',
-              'Actions taken',
-              'Positive outcome'
-            ]
-          },
-          {
-            question: `What makes you a good fit for a ${jobRole} position?`,
-            ideal_answer_points: [
-              'Relevant skills and experience',
-              'Passion for the field',
-              'Alignment with role requirements'
-            ]
-          }
-        ]
+        questions: result.data
       };
 
       const session = {
@@ -145,15 +110,50 @@ export default function InterviewPrep() {
       setCurrentQuestion(0);
       setShowFeedback(false);
 
-      // Update mock interview prep
-      const updatedPrep = {
-        ...interviewPrep,
-        job_role: jobRole,
-        course_ids: courseIds,
-        difficulty,
-        interview_type: interviewType
-      };
-      setInterviewPrep(updatedPrep);
+      // Save to API
+      const token = localStorage.getItem('auth_token');
+      
+      if (interviewPrep) {
+        // Update existing
+        const response = await axios.put(
+          `${API_URL}/interview-prep/${interviewPrep.id}`,
+          {
+            job_role: jobRole,
+            course_ids: courseIdsArray,
+            difficulty,
+            interview_type: interviewType
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+        setInterviewPrep(response.data.data);
+      } else {
+        // Create new
+        const response = await axios.post(
+          `${API_URL}/interview-prep`,
+          {
+            user_email: user.email,
+            job_role: jobRole,
+            course_ids: courseIdsArray,
+            difficulty,
+            interview_type: interviewType,
+            sessions: [],
+            total_sessions: 0,
+            average_score: 0
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+        setInterviewPrep(response.data.data);
+      }
     } catch (error) {
       console.error('Error starting interview session:', error);
       alert('Failed to generate interview questions');
@@ -166,24 +166,18 @@ export default function InterviewPrep() {
     try {
       const question = currentSession.questions[currentQuestion];
       
-      // Mock AI feedback
-      const answerLength = userAnswer.trim().split(' ').length;
-      const rating = Math.min(10, Math.max(5, Math.floor(answerLength / 10) + 5));
-      
-      const feedback = {
-        rating: rating,
-        strengths: [
-          'Clear communication',
-          'Relevant examples provided',
-          'Good structure'
-        ],
-        improvements: [
-          'Could provide more specific details',
-          'Consider adding quantifiable results',
-          'Expand on technical aspects'
-        ],
-        feedback_text: `Your answer demonstrates a good understanding of the topic. You've provided relevant information and structured your response well. To improve, consider adding more specific examples and quantifiable results. Overall, this is a solid answer that covers the key points.`
-      };
+      // Get AI feedback on the answer
+      const result = await generateInterviewFeedbackWithAI({
+        question: question.question,
+        idealAnswerPoints: question.ideal_answer_points,
+        userAnswer: userAnswer
+      });
+
+      if (!result.success) {
+        throw new Error('Failed to generate feedback');
+      }
+
+      const feedback = result.data;
 
       // Update session with feedback
       currentSession.questions[currentQuestion] = {
@@ -229,14 +223,24 @@ export default function InterviewPrep() {
     const newTotalSessions = updatedSessions.length;
     const newAvgScore = updatedSessions.reduce((sum, s) => sum + s.overall_score, 0) / newTotalSessions;
 
-    // Update mock interview prep
-    const updatedPrep = {
-      ...interviewPrep,
-      sessions: updatedSessions,
-      total_sessions: newTotalSessions,
-      average_score: newAvgScore
-    };
-    setInterviewPrep(updatedPrep);
+    // Update interview prep in API
+    const token = localStorage.getItem('auth_token');
+    const response = await axios.put(
+      `${API_URL}/interview-prep/${interviewPrep.id}`,
+      {
+        sessions: updatedSessions,
+        total_sessions: newTotalSessions,
+        average_score: newAvgScore
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    setInterviewPrep(response.data.data);
     setCurrentSession(null);
   };
 
@@ -259,6 +263,41 @@ export default function InterviewPrep() {
 
         {!currentSession ? (
           <div className="space-y-6">
+            {/* Display current interview prep info if exists */}
+            {interviewPrep && interviewPrep.course_ids && interviewPrep.course_ids.length > 0 && (
+              <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50">
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-slate-700">Current Interview Prep Setup:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline" className="bg-white">
+                        <span className="font-semibold">Role:</span> {interviewPrep.job_role || 'Not set'}
+                      </Badge>
+                      <Badge variant="outline" className="bg-white">
+                        <span className="font-semibold">Difficulty:</span> {interviewPrep.difficulty || 'intermediate'}
+                      </Badge>
+                      <Badge variant="outline" className="bg-white">
+                        <span className="font-semibold">Type:</span> {interviewPrep.interview_type || 'mixed'}
+                      </Badge>
+                    </div>
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-slate-600 mb-1">Selected Courses:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {interviewPrep.course_ids.map(courseId => {
+                          const course = courses.find(c => String(c.id) === String(courseId));
+                          return course ? (
+                            <Badge key={courseId} className="bg-purple-500 text-white">
+                              {course.title}
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-2xl">Start New Practice Session</CardTitle>
@@ -287,13 +326,22 @@ export default function InterviewPrep() {
                           <SelectValue placeholder="Select a course" />
                         </SelectTrigger>
                         <SelectContent>
-                          {courses.map(course => (
-                            <SelectItem key={course.id} value={course.id}>
-                              {course.title}
+                          {courses.length > 0 ? (
+                            courses.map(course => (
+                              <SelectItem key={course.id} value={String(course.id)}>
+                                {course.title}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              No published courses available
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Showing all published courses
+                      </p>
                     </div>
 
                     <div>
