@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink, Upload } from 'lucide-react';
+import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink, Upload, Plus, X } from 'lucide-react';
 
 
 // Frontend.
@@ -28,6 +28,7 @@ export default function Portfolio() {
   const [error, setError] = useState(null);
   const [profileImageFile, setProfileImageFile] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
 
   // Load portfolio data.
   useEffect(() => {
@@ -85,6 +86,35 @@ export default function Portfolio() {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setProfileImageFile(e.target.files[0]);
+    }
+  };
+
+  // Handle add skill.
+  const handleAddSkill = () => {
+    if (newSkill.trim()) {
+      const currentSkills = portfolio.skills || [];
+      setPortfolio({
+        ...portfolio,
+        skills: [...currentSkills, newSkill.trim()]
+      });
+      setNewSkill('');
+    }
+  };
+
+  // Handle remove skill.
+  const handleRemoveSkill = (index) => {
+    const currentSkills = portfolio.skills || [];
+    setPortfolio({
+      ...portfolio,
+      skills: currentSkills.filter((_, idx) => idx !== index)
+    });
+  };
+
+  // Handle skill input key press.
+  const handleSkillKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddSkill();
     }
   };
 
@@ -258,14 +288,48 @@ export default function Portfolio() {
             <Card className="border-0 shadow-lg">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-slate-800 mb-4">Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {portfolio.skills?.map((skill, idx) => (
-                    <Badge key={idx} variant="secondary">{skill}</Badge>
-                  ))}
-                  {(!portfolio.skills || portfolio.skills.length === 0) && (
-                    <p className="text-sm text-slate-500">No skills added yet.</p>
-                  )}
-                </div>
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input 
+                        value={newSkill} 
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        onKeyPress={handleSkillKeyPress}
+                        placeholder="Add a skill..."
+                        className="flex-1"
+                      />
+                      <Button onClick={handleAddSkill} size="sm" type="button">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {portfolio.skills?.map((skill, idx) => (
+                        <Badge key={idx} variant="secondary" className="flex items-center gap-1 pr-1">
+                          {skill}
+                          <button
+                            onClick={() => handleRemoveSkill(idx)}
+                            className="ml-1 hover:bg-slate-300 rounded-full p-0.5"
+                            type="button"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                      {(!portfolio.skills || portfolio.skills.length === 0) && (
+                        <p className="text-sm text-slate-500">No skills added yet.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {portfolio.skills?.map((skill, idx) => (
+                      <Badge key={idx} variant="secondary">{skill}</Badge>
+                    ))}
+                    {(!portfolio.skills || portfolio.skills.length === 0) && (
+                      <p className="text-sm text-slate-500">No skills added yet.</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
