@@ -95,6 +95,12 @@ const navigationItems = [
     icon: Store,
     description: "Your Shop"
   },
+  {
+    title: "Interview Prep",
+    url: createPageUrl("InterviewPrep"),
+    icon: MessageSquare,
+    description: "Practice"
+  },
 ];
 
 const Logo = () => (

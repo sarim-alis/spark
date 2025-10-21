@@ -3,17 +3,19 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Bot, Send, Sparkles, Loader2, BookOpen, Lock, Star } from 'lucide-react';
+import { Bot, Send, Sparkles, Loader2, BookOpen, Lock, Star, Code } from 'lucide-react';
 import { InvokeLLM } from '@/api/integrations';
 import { Course } from '@/api/entities';
 import { User } from '@/api/entities';
+import { getAICodeHelp } from '@/services/aiCodeHelper';
 
 
 // Frontend.
 export default function AITutor() {
   // States.
-  const [messages, setMessages] = useState([{ role: 'assistant',content: 'Hi! I\'m your AI Learning Assistant. 👋\n\nI can help you with:\n• Explaining course concepts\n• Answering questions about lessons\n• Providing study tips and resources\n• Breaking down complex topics\n\nSelect a course to get started, or ask me anything!'}]);
+  const [messages, setMessages] = useState([{ role: 'assistant',content: 'Hi! I\'m your AI Learning Assistant. 👋\n\nI can help you with:\n• Explaining course concepts\n• Answering questions about lessons\n• Analyzing and explaining code\n• Providing study tips and resources\n• Breaking down complex topics\n\nSelect a course to get started, or ask me anything!'}]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -21,6 +23,9 @@ export default function AITutor() {
   const [user, setUser] = useState(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const [codeMode, setCodeMode] = useState(false);
+  const [codeInput, setCodeInput] = useState('');
+  const [codeLanguage, setCodeLanguage] = useState('javascript');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -59,41 +64,63 @@ export default function AITutor() {
     scrollToBottom();
   }, [messages]);
 
-  // Handle send.
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
+    const code = codeMode ? codeInput.trim() : '';
+    
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    
+    let displayMessage = userMessage;
+    if (codeMode && code) {
+      displayMessage = `${userMessage}\n\n\`\`\`${codeLanguage}\n${code}\n\`\`\``;
+    }
+    
+    setMessages(prev => [...prev, { role: 'user', content: displayMessage }]);
     setIsLoading(true);
 
     try {
-      let context = `You are an expert AI tutor helping students learn effectively. 
-You provide clear, patient explanations and break down complex topics into simple terms.
-Be encouraging and supportive.
+      let response;
+      
+      if (codeMode && code) {
+        const result = await getAICodeHelp({
+          code: code,
+          question: userMessage,
+          language: codeLanguage
+        });
+        
+        if (result.success) {
+          response = String(result.response);
+        } else {
+          response = `Error: ${result.error}`;
+        }
+      } else {
+        // Use OpenAI API for general chat (same as code mode)
+        let systemPrompt = 'You are an expert AI tutor helping students learn effectively. You provide clear, patient explanations and break down complex topics into simple terms. Be encouraging and supportive.';
+        let userPrompt = userMessage;
 
-Student question: ${userMessage}`;
+        if (selectedCourse) {
+          const course = courses.find(c => c.id === selectedCourse);
+          systemPrompt = `You are an expert AI tutor for the course "${course.title}". Course description: ${course.description}. Course topics: ${course.lessons?.map(l => l.title).join(', ') || 'General topics'}. Provide detailed, helpful explanations. Use examples and analogies when appropriate.`;
+        }
 
-      if (selectedCourse) {
-        const course = courses.find(c => c.id === selectedCourse);
-        context = `You are an expert AI tutor for the course "${course.title}".
-
-Course description: ${course.description}
-Course topics: ${course.lessons?.map(l => l.title).join(', ') || 'General topics'}
-
-Student question: ${userMessage}
-
-Provide a detailed, helpful explanation. Use examples and analogies when appropriate.`;
+        const result = await getAICodeHelp({
+          code: '',
+          question: `${systemPrompt}\n\nStudent: ${userPrompt}`,
+          language: 'text'
+        });
+        
+        if (result.success) {
+          response = result.response;
+        } else {
+          response = `Error: ${result.error}`;
+        }
       }
-
-      const response = await InvokeLLM({
-        prompt: context,
-        add_context_from_internet: !selectedCourse
-      });
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
+      console.error('Error in handleSend:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try asking again!' 
@@ -107,6 +134,13 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
     'Give me a real-world example',
     'What are the key points to remember?',
     'How can I practice this skill?'
+  ];
+
+  const codePrompts = [
+    'Explain what this code does',
+    'How can I improve this code?',
+    'Are there any bugs in this code?',
+    'Suggest best practices for this code'
   ];
 
   if (isCheckingAccess) {
@@ -153,6 +187,12 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
                   <Star className="w-4 h-4 text-emerald-600" />
                 </div>
                 <span>Study tips tailored to your courses</span>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span>Code analysis and programming help with AI</span>
               </div>
             </div>
 
@@ -212,12 +252,55 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
+                  <Code className="w-4 h-4" />
+                  Code Mode
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={!codeMode ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setCodeMode(false)}
+                  >
+                    Chat
+                  </Button>
+                  <Button
+                    variant={codeMode ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setCodeMode(true)}
+                  >
+                    Code
+                  </Button>
+                </div>
+                {codeMode && (
+                  <Select value={codeLanguage} onValueChange={setCodeLanguage}>
+                    <SelectTrigger className="text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="javascript">JavaScript</SelectItem>
+                      <SelectItem value="python">Python</SelectItem>
+                      <SelectItem value="java">Java</SelectItem>
+                      <SelectItem value="cpp">C++</SelectItem>
+                      <SelectItem value="typescript">TypeScript</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   Quick Prompts
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {quickPrompts.map((prompt, idx) => (
+                {(codeMode ? codePrompts : quickPrompts).map((prompt, idx) => (
                   <Button key={idx} variant="outline" size="sm" className="w-full text-left justify-start text-xs" onClick={() => {setInput(prompt);}}>
                     {prompt}
                   </Button>
@@ -251,10 +334,30 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="p-4 border-t bg-slate-50">
+              <div className="p-4 border-t bg-slate-50 space-y-3">
+                {codeMode && (
+                  <Textarea
+                    value={codeInput}
+                    onChange={(e) => setCodeInput(e.target.value)}
+                    placeholder="Paste your code here..."
+                    className="font-mono text-xs min-h-[100px] resize-y"
+                    disabled={isLoading}
+                  />
+                )}
                 <div className="flex gap-3">
-                  <Input value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()} placeholder="Ask anything about your course..." disabled={isLoading} className="flex-1 h-8" />
-                  <Button onClick={handleSend} disabled={isLoading || !input.trim()}className="bg-gradient-to-r from-purple-500 to-pink-500">
+                  <Input 
+                    value={input} 
+                    onChange={(e) => setInput(e.target.value)} 
+                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()} 
+                    placeholder={codeMode ? "Ask about your code..." : "Ask anything about your course..."} 
+                    disabled={isLoading} 
+                    className="flex-1 h-8" 
+                  />
+                  <Button 
+                    onClick={handleSend} 
+                    disabled={isLoading || !input.trim() || (codeMode && !codeInput.trim())}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500"
+                  >
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
