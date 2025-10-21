@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api', // Laravel API URL
+    // Use Vite dev proxy. Requests go to http://localhost:5173/api and are proxied to http://localhost:8000
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
