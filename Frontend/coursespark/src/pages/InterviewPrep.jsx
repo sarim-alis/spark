@@ -317,9 +317,6 @@ export default function InterviewPrep() {
                           )}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Showing all published courses
-                      </p>
                     </div>
 
                     <div>
