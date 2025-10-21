@@ -252,49 +252,6 @@ export default function AITutor() {
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Code className="w-4 h-4" />
-                  Code Mode
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={!codeMode ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => setCodeMode(false)}
-                  >
-                    Chat
-                  </Button>
-                  <Button
-                    variant={codeMode ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => setCodeMode(true)}
-                  >
-                    Code
-                  </Button>
-                </div>
-                {codeMode && (
-                  <Select value={codeLanguage} onValueChange={setCodeLanguage}>
-                    <SelectTrigger className="text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="javascript">JavaScript</SelectItem>
-                      <SelectItem value="python">Python</SelectItem>
-                      <SelectItem value="java">Java</SelectItem>
-                      <SelectItem value="cpp">C++</SelectItem>
-                      <SelectItem value="typescript">TypeScript</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   Quick Prompts
                 </CardTitle>

@@ -48,14 +48,38 @@ export default function InterviewPrep() {
       });
       const allPublishedCourses = coursesResponse.data.data || [];
       setCourses(allPublishedCourses);
-      const token = localStorage.getItem('auth_token');
-      const interviewResponse = await axios.get(`${API_URL}/interview-prep/me`, {headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}});
+      
+      // Get interview prep data from API (optional - may not exist yet)
+      const token = localStorage.getItem('api_token');
+      
+      if (!token) {
+        console.warn('No auth token found. User may need to login.');
+        return;
+      }
 
-      if (interviewResponse.data.success && interviewResponse.data.data) {
-        setInterviewPrep(interviewResponse.data.data);
+      try {
+        const interviewResponse = await axios.get(`${API_URL}/interview-prep/me`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`, 
+            'Accept': 'application/json'
+          }
+        });
+
+        if (interviewResponse.data.success && interviewResponse.data.data) {
+          setInterviewPrep(interviewResponse.data.data);
+        }
+      } catch (error) {
+        // 401 or 404 is OK - means no interview prep exists yet
+        if (error.response?.status === 401) {
+          console.warn('Authentication failed. Please login again.');
+        } else if (error.response?.status === 404) {
+          console.log('No interview prep found yet. Will create on first session.');
+        } else {
+          console.error('Error fetching interview prep:', error);
+        }
       }
     } catch (error) {
-      console.error('Error loading interview prep data:', error);
+      console.error('Error loading data:', error);
     }
   };
 
@@ -87,6 +111,58 @@ export default function InterviewPrep() {
         questions: result.data
       };
 
+      // Save to API FIRST before starting session
+      const token = localStorage.getItem('api_token');
+      let savedInterviewPrep;
+      
+      if (interviewPrep && interviewPrep.id) {
+        // Update existing
+        const response = await axios.put(
+          `${API_URL}/interview-prep/${interviewPrep.id}`,
+          {
+            job_role: jobRole,
+            course_ids: courseIdsArray,
+            difficulty,
+            interview_type: interviewType
+          }, 
+          { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
+        );
+        
+        if (!response.data.success) {
+          throw new Error('Failed to update interview prep');
+        }
+        savedInterviewPrep = response.data.data;
+        setInterviewPrep(savedInterviewPrep);
+      } else {
+        // Create new
+        const response = await axios.post(
+          `${API_URL}/interview-prep`,
+          {
+            user_email: user.email,
+            job_role: jobRole,
+            course_ids: courseIdsArray,
+            difficulty,
+            interview_type: interviewType,
+            sessions: [],
+            total_sessions: 0,
+            average_score: 0
+          },
+          { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
+        );
+        
+        if (!response.data.success) {
+          throw new Error('Failed to create interview prep');
+        }
+        savedInterviewPrep = response.data.data;
+        setInterviewPrep(savedInterviewPrep);
+      }
+
+      // Verify we have a valid ID before starting session
+      if (!savedInterviewPrep || !savedInterviewPrep.id) {
+        throw new Error('Interview prep record was not saved properly');
+      }
+
+      // Now create the session
       const session = {
         session_date: new Date().toISOString(),
         questions: questions.questions.map(q => ({
@@ -104,40 +180,6 @@ export default function InterviewPrep() {
       setCurrentSession(session);
       setCurrentQuestion(0);
       setShowFeedback(false);
-
-      // Save to API
-      const token = localStorage.getItem('auth_token');
-      
-      if (interviewPrep) {
-        // Update existing
-        const response = await axios.put(
-          `${API_URL}/interview-prep/${interviewPrep.id}`,
-          {
-            job_role: jobRole,
-            course_ids: courseIdsArray,
-            difficulty,
-            interview_type: interviewType
-          }, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
-        );
-        setInterviewPrep(response.data.data);
-      } else {
-        // Create new.
-        const response = await axios.post(
-          `${API_URL}/interview-prep`,
-          {
-            user_email: user.email,
-            job_role: jobRole,
-            course_ids: courseIdsArray,
-            difficulty,
-            interview_type: interviewType,
-            sessions: [],
-            total_sessions: 0,
-            average_score: 0
-          },
-          { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
-        );
-        setInterviewPrep(response.data.data);
-      }
     } catch (error) {
       console.error('Error starting interview session:', error);
       alert('Failed to generate interview questions');
@@ -193,33 +235,60 @@ export default function InterviewPrep() {
   };
 
   const finishSession = async () => {
-    const totalRating = currentSession.questions.reduce((sum, q) => sum + (q.rating || 0), 0);
-    const avgScore = (totalRating / currentSession.questions.length) * 10;
+    try {
+      const totalRating = currentSession.questions.reduce((sum, q) => sum + (q.rating || 0), 0);
+      const avgScore = (totalRating / currentSession.questions.length) * 10;
 
-    const allStrengths = currentSession.questions.flatMap(q => q.strengths || []);
-    const allImprovements = currentSession.questions.flatMap(q => q.improvements || []);
+      const allStrengths = currentSession.questions.flatMap(q => q.strengths || []);
+      const allImprovements = currentSession.questions.flatMap(q => q.improvements || []);
 
-    currentSession.overall_score = avgScore;
-    currentSession.strengths = [...new Set(allStrengths)].slice(0, 5);
-    currentSession.improvement_areas = [...new Set(allImprovements)].slice(0, 5);
+      currentSession.overall_score = avgScore;
+      currentSession.strengths = [...new Set(allStrengths)].slice(0, 5);
+      currentSession.improvement_areas = [...new Set(allImprovements)].slice(0, 5);
 
-    const updatedSessions = [...(interviewPrep.sessions || []), currentSession];
-    const newTotalSessions = updatedSessions.length;
-    const newAvgScore = updatedSessions.reduce((sum, s) => sum + s.overall_score, 0) / newTotalSessions;
+      const updatedSessions = [...(interviewPrep?.sessions || []), currentSession];
+      const newTotalSessions = updatedSessions.length;
+      const newAvgScore = updatedSessions.reduce((sum, s) => sum + s.overall_score, 0) / newTotalSessions;
 
-    // Update interview prep in API
-    const token = localStorage.getItem('auth_token');
-    const response = await axios.put(
-      `${API_URL}/interview-prep/${interviewPrep.id}`,
-      {
-        sessions: updatedSessions,
-        total_sessions: newTotalSessions,
-        average_score: newAvgScore
-      }, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
-    );
-    
-    setInterviewPrep(response.data.data);
-    setCurrentSession(null);
+      // Update interview prep in API
+      if (!interviewPrep || !interviewPrep.id) {
+        console.error('No interview prep record found', interviewPrep);
+        alert('Error: Interview prep record not found. Please start a new session.');
+        setCurrentSession(null);
+        // Reload data to refresh state
+        await loadData();
+        return;
+      }
+
+      console.log('Saving session to interview prep ID:', interviewPrep.id);
+
+      const token = localStorage.getItem('api_token');
+      const response = await axios.put(
+        `${API_URL}/interview-prep/${interviewPrep.id}`,
+        {
+          sessions: updatedSessions,
+          total_sessions: newTotalSessions,
+          average_score: newAvgScore
+        }, 
+        { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
+      );
+      
+      if (response.data.success) {
+        setInterviewPrep(response.data.data);
+        setCurrentSession(null);
+        
+        // Show success message
+        alert(`Session completed! Your score: ${avgScore.toFixed(1)}%`);
+        
+        // Reload data to refresh the page
+        await loadData();
+      } else {
+        throw new Error('Failed to save session');
+      }
+    } catch (error) {
+      console.error('Error finishing session:', error);
+      alert('Failed to save session. Please try again.');
+    }
   };
 
   if (!user) {
@@ -240,42 +309,7 @@ export default function InterviewPrep() {
         </header>
 
         {!currentSession ? (
-          <div className="space-y-6">
-            {/* Display current interview prep info if exists */}
-            {interviewPrep && interviewPrep.course_ids && interviewPrep.course_ids.length > 0 && (
-              <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50">
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-slate-700">Current Interview Prep Setup:</p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="bg-white">
-                        <span className="font-semibold">Role:</span> {interviewPrep.job_role || 'Not set'}
-                      </Badge>
-                      <Badge variant="outline" className="bg-white">
-                        <span className="font-semibold">Difficulty:</span> {interviewPrep.difficulty || 'intermediate'}
-                      </Badge>
-                      <Badge variant="outline" className="bg-white">
-                        <span className="font-semibold">Type:</span> {interviewPrep.interview_type || 'mixed'}
-                      </Badge>
-                    </div>
-                    <div className="mt-3">
-                      <p className="text-xs font-semibold text-slate-600 mb-1">Selected Courses:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {interviewPrep.course_ids.map(courseId => {
-                          const course = courses.find(c => String(c.id) === String(courseId));
-                          return course ? (
-                            <Badge key={courseId} className="bg-purple-500 text-white">
-                              {course.title}
-                            </Badge>
-                          ) : null;
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
+          <div className="space-y-6">  
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-2xl">Start New Practice Session</CardTitle>
