@@ -259,39 +259,9 @@ export default function InterviewPrep() {
 
         {!currentSession ? (
           <div className="space-y-6">
-            {interviewPrep && interviewPrep.sessions && interviewPrep.sessions.length > 0 && (
-              <div className="grid md:grid-cols-3 gap-4">
-                <Card className="border-0 shadow-lg">
-                  <CardContent className="p-6 text-center">
-                    <Play className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">{interviewPrep.total_sessions}</p>
-                    <p className="text-sm text-slate-600">Practice Sessions</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg">
-                  <CardContent className="p-6 text-center">
-                    <TrendingUp className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">{Math.round(interviewPrep.average_score)}%</p>
-                    <p className="text-sm text-slate-600">Average Score</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg">
-                  <CardContent className="p-6 text-center">
-                    <Award className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">
-                      {interviewPrep.sessions[interviewPrep.sessions.length - 1]?.overall_score.toFixed(0)}%
-                    </p>
-                    <p className="text-sm text-slate-600">Last Score</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>Start New Practice Session</CardTitle>
+                <CardTitle className="text-2xl">Start New Practice Session</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={(e) => {
@@ -371,31 +341,6 @@ export default function InterviewPrep() {
                 </form>
               </CardContent>
             </Card>
-
-            {interviewPrep && interviewPrep.sessions && interviewPrep.sessions.length > 0 && (
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle>Recent Sessions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {interviewPrep.sessions.slice(-5).reverse().map((session, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-slate-800">{interviewPrep.job_role}</p>
-                          <p className="text-xs text-slate-500">
-                            {new Date(session.session_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Badge variant={session.overall_score >= 70 ? 'default' : 'secondary'}>
-                          {Math.round(session.overall_score)}%
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         ) : (
           <Card className="border-0 shadow-lg">
