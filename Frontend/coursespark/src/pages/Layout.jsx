@@ -96,18 +96,18 @@ const navigationItems = [
     icon: Store,
     description: "Your Shop"
   },
-   {
-    title: "Portfolio",
-    url: createPageUrl("Portfolio"),
-    icon: User,
-    description: "Showcase Work"
-  },
-  {
-    title: "Interview Prep",
-    url: createPageUrl("InterviewPrep"),
-    icon: MessageSquare,
-    description: "Practice"
-  },
+  //  {
+  //   title: "Portfolio",
+  //   url: createPageUrl("Portfolio"),
+  //   icon: User,
+  //   description: "Showcase Work"
+  // },
+  // {
+  //   title: "Interview Prep",
+  //   url: createPageUrl("InterviewPrep"),
+  //   icon: MessageSquare,
+  //   description: "Practice"
+  // },
 ];
 
 const Logo = () => (
