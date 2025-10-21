@@ -1,3 +1,4 @@
+// Imports.
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,14 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { MessageSquare, Sparkles, TrendingUp, Award, Play } from 'lucide-react';
-import { User } from '@/api/entities';
+import { MessageSquare, Sparkles, Award, Play } from 'lucide-react';
 import axios from 'axios';
 import { generateInterviewQuestionsWithAI, generateInterviewFeedbackWithAI } from '@/services/aiInterviewGenerator';
 import { courseAPI } from '@/services/courseApi';
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
+
+// Frontend.
 export default function InterviewPrep() {
   const [user, setUser] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -28,6 +29,7 @@ export default function InterviewPrep() {
     loadData();
   }, []);
 
+//   Load data.
   const loadData = async () => {
     try {
       // Get authenticated user from localStorage
@@ -46,15 +48,8 @@ export default function InterviewPrep() {
       });
       const allPublishedCourses = coursesResponse.data.data || [];
       setCourses(allPublishedCourses);
-
-      // Get interview prep data from API
       const token = localStorage.getItem('auth_token');
-      const interviewResponse = await axios.get(`${API_URL}/interview-prep/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
+      const interviewResponse = await axios.get(`${API_URL}/interview-prep/me`, {headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}});
 
       if (interviewResponse.data.success && interviewResponse.data.data) {
         setInterviewPrep(interviewResponse.data.data);
@@ -122,17 +117,11 @@ export default function InterviewPrep() {
             course_ids: courseIdsArray,
             difficulty,
             interview_type: interviewType
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
-          }
+          }, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
         );
         setInterviewPrep(response.data.data);
       } else {
-        // Create new
+        // Create new.
         const response = await axios.post(
           `${API_URL}/interview-prep`,
           {
@@ -145,12 +134,7 @@ export default function InterviewPrep() {
             total_sessions: 0,
             average_score: 0
           },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
-          }
+          { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
         );
         setInterviewPrep(response.data.data);
       }
@@ -231,13 +215,7 @@ export default function InterviewPrep() {
         sessions: updatedSessions,
         total_sessions: newTotalSessions,
         average_score: newAvgScore
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      }
+      }, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json'}}
     );
     
     setInterviewPrep(response.data.data);
