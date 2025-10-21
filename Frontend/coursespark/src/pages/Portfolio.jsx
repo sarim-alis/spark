@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink } from 'lucide-react';
+import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink, Upload } from 'lucide-react';
 
 
 // Frontend.
@@ -26,6 +26,8 @@ export default function Portfolio() {
   const [user, setUser] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [error, setError] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load portfolio data.
   useEffect(() => {
@@ -79,15 +81,59 @@ export default function Portfolio() {
     }
   };
 
+  // Handle file change.
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setProfileImageFile(e.target.files[0]);
+    }
+  };
+
   // Handle save.
   const handleSave = async () => {
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    console.log('🔄 Starting save...');
+    
     try {
-      await portfolioAPI.update(portfolio.id, portfolio);
+      const updatedData = { ...portfolio };
+      
+      // Add profile image file if selected
+      if (profileImageFile) {
+        updatedData.profile_image = profileImageFile;
+      }
+      
+      console.log('📤 Saving portfolio with data:', updatedData);
+      const updateResponse = await portfolioAPI.update(portfolio.id, updatedData);
+      console.log('✅ Update response:', updateResponse);
+      
+      // Reload portfolio to get updated image URL
+      console.log('🔄 Reloading portfolio...');
+      const response = await portfolioAPI.getMyPortfolio();
+      console.log('✅ Reload response:', response);
+      setPortfolio(response.data.data);
+      
       setIsEditing(false);
-      toast.success('Portfolio updated successfully!');
+      setProfileImageFile(null);
+      console.log('🎉 Success! Showing toast...');
+      toast.success('Portfolio updated successfully!', {
+        duration: 4000,
+      });
     } catch (error) {
-      console.error('Error saving portfolio:', error);
-      toast.error('Failed to save portfolio: ' + (error.message || 'Unknown error'));
+      console.error('❌ Full error object:', error);
+      console.error('❌ Error response:', error.response?.data);
+      const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
+      const errors = error.response?.data?.errors;
+      if (errors) {
+        console.error('❌ Validation errors:', errors);
+        const firstError = Object.values(errors)[0][0];
+        toast.error(firstError, { duration: 5000 });
+      } else {
+        toast.error('Failed to save portfolio: ' + errorMsg, { duration: 5000 });
+      }
+    } finally {
+      setIsSaving(false);
+      console.log('✅ Save process complete');
     }
   };
 
@@ -125,9 +171,9 @@ export default function Portfolio() {
           {isOwner && (
             <div className="flex justify-end gap-2 mb-4">
               {isEditing ? (
-                <Button onClick={handleSave} variant="secondary" size="sm">
+                <Button onClick={handleSave} variant="secondary" size="sm" disabled={isSaving}>
                   <Save className="w-4 h-4 mr-2" />
-                  Save Changes
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               ) : (
                 <>
@@ -145,14 +191,38 @@ export default function Portfolio() {
           )}
 
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
-              {portfolio.profile_image ? (
-                <img src={portfolio.profile_image} alt={portfolio.display_name} className="w-full h-full object-cover" />
-              ) : (
-                <Briefcase className="w-16 h-16" />
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                {profileImageFile ? (
+                  <img src={URL.createObjectURL(profileImageFile)} alt={portfolio.display_name} className="w-full h-full object-cover" />
+                ) : portfolio.profile_image ? (
+                  <img src={portfolio.profile_image} alt={portfolio.display_name} className="w-full h-full object-cover" />
+                ) : (
+                  <Briefcase className="w-16 h-16" />
+                )}
+              </div>
+              {isEditing && (
+                <div className="mt-2">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={() => document.getElementById('portfolio-image-upload').click()} 
+                    type="button"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Change Photo
+                  </Button>
+                  <input 
+                    id="portfolio-image-upload" 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleFileChange} 
+                  />
+                </div>
               )}
             </div>
-            <div className="text-center md:text-left">
+            <div className="text-center md:text-left flex-1">
               {isEditing ? (
                 <>
                   <Input value={portfolio.display_name || ''} onChange={(e) => setPortfolio({...portfolio, display_name: e.target.value})} className="text-2xl font-bold mb-2 bg-white/20 border-white/40 text-white" placeholder="Your Name" />

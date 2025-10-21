@@ -6,6 +6,7 @@ use App\Models\Portfolio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Cloudinary\Cloudinary;
 
 class PortfolioController extends Controller
 {
@@ -50,7 +51,7 @@ class PortfolioController extends Controller
             'display_name' => 'required|string|max:191',
             'headline' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
-            'profile_image' => 'nullable|string',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'featured_projects' => 'nullable|array',
             'skills' => 'nullable|array',
             'certificates' => 'nullable|array',
@@ -66,7 +67,48 @@ class PortfolioController extends Controller
             ], 422);
         }
 
-        $portfolio = Portfolio::create($request->all());
+        $data = $request->all();
+
+        // Decode JSON strings to arrays for JSON fields (from FormData)
+        $jsonFields = ['featured_projects', 'skills', 'certificates', 'social_links'];
+        foreach ($jsonFields as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $data[$field] = json_decode($data[$field], true);
+            }
+        }
+
+        // Convert is_public to boolean
+        if (isset($data['is_public'])) {
+            $data['is_public'] = filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Handle profile image upload to Cloudinary
+        if ($request->hasFile('profile_image')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('profile_image');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'portfolios',
+                    'resource_type' => 'image'
+                ]);
+
+                $data['profile_image'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload image: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        $portfolio = Portfolio::create($data);
 
         return response()->json([
             'success' => true,
@@ -120,11 +162,11 @@ class PortfolioController extends Controller
             'display_name' => 'sometimes|string|max:191',
             'headline' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
-            'profile_image' => 'nullable|string',
-            'featured_projects' => 'nullable|array',
-            'skills' => 'nullable|array',
-            'certificates' => 'nullable|array',
-            'social_links' => 'nullable|array',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'featured_projects' => 'nullable', // Can be array or JSON string
+            'skills' => 'nullable', // Can be array or JSON string
+            'certificates' => 'nullable', // Can be array or JSON string
+            'social_links' => 'nullable', // Can be array or JSON string
             'is_public' => 'nullable|boolean',
             'view_count' => 'nullable|integer|min:0',
         ]);
@@ -136,7 +178,48 @@ class PortfolioController extends Controller
             ], 422);
         }
 
-        $portfolio->update($request->all());
+        $data = $request->all();
+
+        // Decode JSON strings to arrays for JSON fields (from FormData)
+        $jsonFields = ['featured_projects', 'skills', 'certificates', 'social_links'];
+        foreach ($jsonFields as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $data[$field] = json_decode($data[$field], true);
+            }
+        }
+
+        // Convert is_public to boolean
+        if (isset($data['is_public'])) {
+            $data['is_public'] = filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Handle profile image upload to Cloudinary
+        if ($request->hasFile('profile_image')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('profile_image');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'portfolios',
+                    'resource_type' => 'image'
+                ]);
+
+                $data['profile_image'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload image: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        $portfolio->update($data);
 
         return response()->json([
             'success' => true,
