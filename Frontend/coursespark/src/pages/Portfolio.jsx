@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink, Upload, Plus, X } from 'lucide-react';
+import { Briefcase, Award, Github, Edit3, Save, Share2, ExternalLink, Upload, Plus, X, Pencil, Check } from 'lucide-react';
 
 
 // Frontend.
@@ -29,6 +29,15 @@ export default function Portfolio() {
   const [profileImageFile, setProfileImageFile] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [newSkill, setNewSkill] = useState('');
+  const [newProject, setNewProject] = useState({
+    title: '',
+    description: '',
+    technologies: '',
+    live_url: '',
+    github_url: ''
+  });
+  const [editingProjectIndex, setEditingProjectIndex] = useState(null);
+  const [editingProject, setEditingProject] = useState(null);
 
   // Load portfolio data.
   useEffect(() => {
@@ -116,6 +125,86 @@ export default function Portfolio() {
       e.preventDefault();
       handleAddSkill();
     }
+  };
+
+  // Handle add project.
+  const handleAddProject = () => {
+    if (newProject.title.trim() && newProject.description.trim()) {
+      const currentProjects = portfolio.featured_projects || [];
+      const projectToAdd = {
+        title: newProject.title.trim(),
+        description: newProject.description.trim(),
+        technologies: newProject.technologies.trim() ? newProject.technologies.split(',').map(t => t.trim()) : [],
+        live_url: newProject.live_url.trim(),
+        github_url: newProject.github_url.trim()
+      };
+      setPortfolio({
+        ...portfolio,
+        featured_projects: [...currentProjects, projectToAdd]
+      });
+      setNewProject({
+        title: '',
+        description: '',
+        technologies: '',
+        live_url: '',
+        github_url: ''
+      });
+      toast.success('Project added!');
+    } else {
+      toast.error('Please fill in title and description');
+    }
+  };
+
+  // Handle remove project.
+  const handleRemoveProject = (index) => {
+    const currentProjects = portfolio.featured_projects || [];
+    setPortfolio({
+      ...portfolio,
+      featured_projects: currentProjects.filter((_, idx) => idx !== index)
+    });
+    toast.success('Project removed!');
+  };
+
+  // Handle edit project.
+  const handleEditProject = (index) => {
+    const project = portfolio.featured_projects[index];
+    setEditingProjectIndex(index);
+    setEditingProject({
+      title: project.title,
+      description: project.description,
+      technologies: Array.isArray(project.technologies) ? project.technologies.join(', ') : '',
+      live_url: project.live_url || '',
+      github_url: project.github_url || ''
+    });
+  };
+
+  // Handle update project.
+  const handleUpdateProject = () => {
+    if (editingProject.title.trim() && editingProject.description.trim()) {
+      const currentProjects = [...portfolio.featured_projects];
+      currentProjects[editingProjectIndex] = {
+        title: editingProject.title.trim(),
+        description: editingProject.description.trim(),
+        technologies: editingProject.technologies.trim() ? editingProject.technologies.split(',').map(t => t.trim()) : [],
+        live_url: editingProject.live_url.trim(),
+        github_url: editingProject.github_url.trim()
+      };
+      setPortfolio({
+        ...portfolio,
+        featured_projects: currentProjects
+      });
+      setEditingProjectIndex(null);
+      setEditingProject(null);
+      toast.success('Project updated!');
+    } else {
+      toast.error('Please fill in title and description');
+    }
+  };
+
+  // Handle cancel edit project.
+  const handleCancelEditProject = () => {
+    setEditingProjectIndex(null);
+    setEditingProject(null);
   };
 
   // Handle save.
@@ -339,44 +428,145 @@ export default function Portfolio() {
             <Card className="border-0 shadow-lg">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-slate-800 mb-4">Featured Projects</h3>
+                
+                {isEditing && (
+                  <div className="mb-6 p-4 border border-slate-200 rounded-lg bg-slate-50">
+                    <h4 className="font-medium text-slate-700 mb-3">Add New Project</h4>
+                    <div className="space-y-3">
+                      <Input 
+                        value={newProject.title}
+                        onChange={(e) => setNewProject({...newProject, title: e.target.value})}
+                        placeholder="Project Title *"
+                      />
+                      <Textarea 
+                        value={newProject.description}
+                        onChange={(e) => setNewProject({...newProject, description: e.target.value})}
+                        placeholder="Project Description *"
+                        rows={3}
+                      />
+                      <Input 
+                        value={newProject.technologies}
+                        onChange={(e) => setNewProject({...newProject, technologies: e.target.value})}
+                        placeholder="Technologies (comma separated, e.g., React, Node.js, MongoDB)"
+                      />
+                      <Input 
+                        value={newProject.live_url}
+                        onChange={(e) => setNewProject({...newProject, live_url: e.target.value})}
+                        placeholder="Live Demo URL (optional)"
+                      />
+                      <Input 
+                        value={newProject.github_url}
+                        onChange={(e) => setNewProject({...newProject, github_url: e.target.value})}
+                        placeholder="GitHub URL (optional)"
+                      />
+                      <Button onClick={handleAddProject} className="w-full" type="button">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Project
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
                 {portfolio.featured_projects && portfolio.featured_projects.length > 0 ? (
                   <div className="grid gap-4">
                     {portfolio.featured_projects.map((project, idx) => (
-                      <div key={idx} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4">
-                          {project.thumbnail && (
-                            <img src={project.thumbnail} alt={project.title} className="w-24 h-24 object-cover rounded-lg" />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-slate-800 mb-1">{project.title}</h4>
-                            <p className="text-sm text-slate-600 mb-2">{project.description}</p>
-                            {project.technologies && (
-                              <div className="flex flex-wrap gap-1 mb-2">
-                                {project.technologies.map((tech, i) => (
-                                  <Badge key={i} variant="outline" className="text-xs">{tech}</Badge>
-                                ))}
-                              </div>
-                            )}
+                      <div key={idx} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow relative">
+                        {isEditing && editingProjectIndex !== idx && (
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <button
+                              onClick={() => handleEditProject(idx)}
+                              className="p-1 hover:bg-blue-100 rounded-full text-blue-600"
+                              type="button"
+                              title="Edit project"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRemoveProject(idx)}
+                              className="p-1 hover:bg-red-100 rounded-full text-red-600"
+                              type="button"
+                              title="Remove project"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                        
+                        {editingProjectIndex === idx ? (
+                          <div className="space-y-3">
+                            <Input 
+                              value={editingProject.title}
+                              onChange={(e) => setEditingProject({...editingProject, title: e.target.value})}
+                              placeholder="Project Title *"
+                            />
+                            <Textarea 
+                              value={editingProject.description}
+                              onChange={(e) => setEditingProject({...editingProject, description: e.target.value})}
+                              placeholder="Project Description *"
+                              rows={3}
+                            />
+                            <Input 
+                              value={editingProject.technologies}
+                              onChange={(e) => setEditingProject({...editingProject, technologies: e.target.value})}
+                              placeholder="Technologies (comma separated)"
+                            />
+                            <Input 
+                              value={editingProject.live_url}
+                              onChange={(e) => setEditingProject({...editingProject, live_url: e.target.value})}
+                              placeholder="Live Demo URL (optional)"
+                            />
+                            <Input 
+                              value={editingProject.github_url}
+                              onChange={(e) => setEditingProject({...editingProject, github_url: e.target.value})}
+                              placeholder="GitHub URL (optional)"
+                            />
                             <div className="flex gap-2">
-                              {project.live_url && (
-                                <a href={project.live_url} target="_blank" rel="noopener noreferrer">
-                                  <Button variant="outline" size="sm">
-                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                    Live Demo
-                                  </Button>
-                                </a>
-                              )}
-                              {project.github_url && (
-                                <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                                  <Button variant="outline" size="sm">
-                                    <Github className="w-3 h-3 mr-1" />
-                                    Code
-                                  </Button>
-                                </a>
-                              )}
+                              <Button onClick={handleUpdateProject} size="sm" type="button">
+                                <Check className="w-4 h-4 mr-1" />
+                                Update
+                              </Button>
+                              <Button onClick={handleCancelEditProject} variant="outline" size="sm" type="button">
+                                <X className="w-4 h-4 mr-1" />
+                                Cancel
+                              </Button>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="flex items-start gap-4">
+                            {project.thumbnail && (
+                              <img src={project.thumbnail} alt={project.title} className="w-24 h-24 object-cover rounded-lg" />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-slate-800 mb-1">{project.title}</h4>
+                              <p className="text-sm text-slate-600 mb-2">{project.description}</p>
+                              {project.technologies && project.technologies.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-2">
+                                  {project.technologies.map((tech, i) => (
+                                    <Badge key={i} variant="outline" className="text-xs">{tech}</Badge>
+                                  ))}
+                                </div>
+                              )}
+                              <div className="flex gap-2">
+                                {project.live_url && (
+                                  <a href={project.live_url} target="_blank" rel="noopener noreferrer">
+                                    <Button variant="outline" size="sm">
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      Live Demo
+                                    </Button>
+                                  </a>
+                                )}
+                                {project.github_url && (
+                                  <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                                    <Button variant="outline" size="sm">
+                                      <Github className="w-3 h-3 mr-1" />
+                                      Code
+                                    </Button>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -386,7 +576,7 @@ export default function Portfolio() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg">
+            {/* <Card className="border-0 shadow-lg">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-slate-800 mb-4">Completed Courses</h3>
                 <div className="space-y-3">
@@ -405,7 +595,7 @@ export default function Portfolio() {
                   ))}
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </div>
