@@ -2,6 +2,7 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\InterviewPrepController;
+use App\Http\Controllers\PortfolioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -39,4 +40,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'update']);
     Route::patch('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'update']);
     Route::delete('interview-prep/{interviewPrep}', [InterviewPrepController::class, 'destroy']);
+    
+    // Portfolio
+    Route::get('portfolio', [PortfolioController::class, 'index']);
+    Route::post('portfolio', [PortfolioController::class, 'store']);
+    Route::get('portfolio/me', [PortfolioController::class, 'getMyPortfolio']);
+    Route::get('portfolio/slug/{slug}', [PortfolioController::class, 'showBySlug']);
+    Route::get('portfolio/{portfolio}', [PortfolioController::class, 'show']);
+    Route::put('portfolio/{portfolio}', [PortfolioController::class, 'update']);
+    Route::patch('portfolio/{portfolio}', [PortfolioController::class, 'update']);
+    Route::delete('portfolio/{portfolio}', [PortfolioController::class, 'destroy']);
 });

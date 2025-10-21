@@ -19,10 +19,13 @@ import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
 import AuthProvider from '@/context/AuthProvider';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Portfolio from '@/pages/Portfolio';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -45,6 +48,7 @@ export default function App() {
           <Route path="storefront" element={<Storefront />} />
           <Route path="aitutor" element={<AITutor />} />
           <Route path="aitools" element={<AITools />} />
+          <Route path="portfolio" element={<Portfolio />} />
           <Route path="interviewprep" element={<InterviewPrep />} />
           <Route path="paymentsuccess" element={<PaymentSuccess />} />
           <Route path="subscriptionsuccess" element={<SubscriptionSuccess />} />
