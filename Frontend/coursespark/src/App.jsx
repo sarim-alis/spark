@@ -17,8 +17,13 @@ import Profile from '@/pages/Profile';
 import AdminSync from '@/pages/AdminSync';
 import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
+import AdminLogin from '@/pages/Auth/AdminLogin';
 import AuthProvider from '@/context/AuthProvider';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminProtectedRoute from '@/components/AdminProtectedRoute';
+import AdminLayout from '@/pages/Admin/AdminLayout';
+import AdminDashboard from '@/pages/Admin/AdminDashboard';
+import AdminProfile from '@/pages/Admin/AdminProfile';
 import Portfolio from '@/pages/Portfolio';
 import { Toaster } from 'react-hot-toast';
 
@@ -29,6 +34,26 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="profile" element={<AdminProfile />} />
+          {/* Add more admin routes here as needed */}
+          <Route path="users" element={<div className="p-8">Users Management - Coming Soon</div>} />
+          <Route path="courses" element={<div className="p-8">Courses Management - Coming Soon</div>} />
+          <Route path="reports" element={<div className="p-8">Reports - Coming Soon</div>} />
+          <Route path="settings" element={<div className="p-8">Settings - Coming Soon</div>} />
+        </Route>
 
         <Route
           path="/"
