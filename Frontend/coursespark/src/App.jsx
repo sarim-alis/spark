@@ -10,6 +10,7 @@ import CourseViewer from '@/pages/CourseViewer';
 import Storefront from '@/pages/Storefront';
 import AITutor from '@/pages/AITutor';
 import AITools from '@/pages/AITools';
+import InterviewPrep from '@/pages/InterviewPrep';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import SubscriptionSuccess from '@/pages/SubscriptionSuccess';
 import Profile from '@/pages/Profile';
@@ -44,9 +45,11 @@ export default function App() {
           <Route path="storefront" element={<Storefront />} />
           <Route path="aitutor" element={<AITutor />} />
           <Route path="aitools" element={<AITools />} />
+          <Route path="interviewprep" element={<InterviewPrep />} />
           <Route path="paymentsuccess" element={<PaymentSuccess />} />
           <Route path="subscriptionsuccess" element={<SubscriptionSuccess />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="" element={<Profile />} />
           <Route path="adminsync" element={<AdminSync />} />
         </Route>
 

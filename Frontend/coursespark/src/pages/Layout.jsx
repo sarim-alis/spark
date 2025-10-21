@@ -18,7 +18,8 @@ import {
   Bot, // Added Bot icon
   Home,
   Wand2,
-  Settings // Added Settings icon for Admin Sync
+  Settings, // Added Settings icon for Admin Sync
+  MessageSquare // Added MessageSquare icon for Interview Prep
 } from "lucide-react";
 import {
   DropdownMenu,
