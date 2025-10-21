@@ -1,5 +1,5 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+// Imports.
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,13 +9,11 @@ import { InvokeLLM } from '@/api/integrations';
 import { Course } from '@/api/entities';
 import { User } from '@/api/entities';
 
+
+// Frontend.
 export default function AITutor() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: 'Hi! I\'m your AI Learning Assistant. 👋\n\nI can help you with:\n• Explaining course concepts\n• Answering questions about lessons\n• Providing study tips and resources\n• Breaking down complex topics\n\nSelect a course to get started, or ask me anything!'
-    }
-  ]);
+  // States.
+  const [messages, setMessages] = useState([{ role: 'assistant',content: 'Hi! I\'m your AI Learning Assistant. 👋\n\nI can help you with:\n• Explaining course concepts\n• Answering questions about lessons\n• Providing study tips and resources\n• Breaking down complex topics\n\nSelect a course to get started, or ask me anything!'}]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -29,6 +27,7 @@ export default function AITutor() {
     loadData();
   }, []);
 
+  // Load data.
   const loadData = async () => {
     setIsCheckingAccess(true);
     try {
@@ -44,12 +43,14 @@ export default function AITutor() {
     setIsCheckingAccess(false);
   };
 
+  // Handle unlock.
   const handleUnlock = () => {
     const stripeLink = 'https://buy.stripe.com/5kQdR83PeglF5vEaCLaMU01'; // Updated Stripe link
     console.log('Opening Stripe link:', stripeLink);
     window.top.location.href = stripeLink;
   };
 
+  // Scroll to buttom.
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -58,6 +59,7 @@ export default function AITutor() {
     scrollToBottom();
   }, [messages]);
 
+  // Handle send.
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -124,9 +126,7 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
               <Lock className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-3xl font-extrabold">Unlock AI Learning Assistant</CardTitle>
-            <p className="text-slate-600 mt-2">
-              Get instant help from your personal AI tutor, available 24/7
-            </p>
+            <p className="text-slate-600 mt-2">Get instant help from your personal AI tutor, available 24/7</p>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-3">
@@ -157,14 +157,8 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
             </div>
 
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 text-center">
-              <p className="text-sm text-slate-600 mb-4">
-                Unlock the AI Learning Assistant and never feel stuck again
-              </p>
-              <Button 
-                onClick={handleUnlock}
-                size="lg"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg w-full"
-              >
+              <p className="text-sm text-slate-600 mb-4">Unlock the AI Learning Assistant and never feel stuck again</p>
+              <Button onClick={handleUnlock}size="lg"className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg w-full">
                 Unlock Now
               </Button>
             </div>
@@ -224,15 +218,7 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
               </CardHeader>
               <CardContent className="space-y-2">
                 {quickPrompts.map((prompt, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-left justify-start text-xs"
-                    onClick={() => {
-                      setInput(prompt);
-                    }}
-                  >
+                  <Button key={idx} variant="outline" size="sm" className="w-full text-left justify-start text-xs" onClick={() => {setInput(prompt);}}>
                     {prompt}
                   </Button>
                 ))}
@@ -267,19 +253,8 @@ Provide a detailed, helpful explanation. Use examples and analogies when appropr
 
               <div className="p-4 border-t bg-slate-50">
                 <div className="flex gap-3">
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                    placeholder="Ask anything about your course..."
-                    disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleSend} 
-                    disabled={isLoading || !input.trim()}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500"
-                  >
+                  <Input value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()} placeholder="Ask anything about your course..." disabled={isLoading} className="flex-1 h-8" />
+                  <Button onClick={handleSend} disabled={isLoading || !input.trim()}className="bg-gradient-to-r from-purple-500 to-pink-500">
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
