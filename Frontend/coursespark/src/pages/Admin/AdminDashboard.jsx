@@ -1,25 +1,65 @@
 // Imports.
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, BookOpen,  ShieldCheck } from 'lucide-react';
+import { Users, BookOpen, ShieldCheck } from 'lucide-react';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { adminAPI } from '@/services/api';
 
 
 // Frontend.
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
-    totalCourses: 0,
-    totalRevenue: 0,
-    activeUsers: 0
+    totalCourses: 0
   });
+  const [latestUsers, setLatestUsers] = useState([]);
+  const [latestCourses, setLatestCourses] = useState([]);
 
   useEffect(() => {
-    // TODO: Fetch actual stats from API
-    setStats({
-      totalUsers: 1250,
-      totalCourses: 342,
-    });
+    fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch users
+      const usersResponse = await adminAPI.getAllUsers();
+      const allUsers = usersResponse.data || [];
+      const nonAdminUsers = allUsers.filter(user => user.role !== 'admin');
+      
+      // Get 5 latest users
+      const sortedUsers = [...nonAdminUsers].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setLatestUsers(sortedUsers.slice(0, 5));
+      
+      // Fetch courses
+      const coursesResponse = await adminAPI.getAllCourses();
+      const coursesData = coursesResponse.data.data || coursesResponse.data || [];
+      const publishedCourses = coursesData.filter(course => course.is_published === 1 || course.is_published === true);
+      
+      // Get 5 latest courses
+      const sortedCourses = [...publishedCourses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setLatestCourses(sortedCourses.slice(0, 5));
+      
+      // Update stats
+      setStats({
+        totalUsers: nonAdminUsers.length,
+        totalCourses: publishedCourses.length
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
+
+  const formatTimeAgo = (date) => {
+    const now = new Date();
+    const created = new Date(date);
+    const diffInSeconds = Math.floor((now - created) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  };
 
   const statCards = [
     { title: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-600', bgColor: 'bg-blue-100'},
@@ -70,20 +110,22 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                {latestUsers.length > 0 ? latestUsers.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
+                      <Avatar size={40} src={user.profile_picture_url} icon={<UserOutlined />} className="border-2 border-violet-200">
+                        {!user.profile_picture_url && user.name?.[0]?.toUpperCase()}
+                      </Avatar>
                       <div>
-                        <p className="font-semibold text-gray-800">User {item}</p>
-                        <p className="text-sm text-gray-500">user{item}@example.com</p>
+                        <p className="font-semibold text-gray-800">{user.name}</p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
                       </div>
                     </div>
-                    <span className="text-xs text-gray-500">2h ago</span>
+                    <span className="text-xs text-gray-500">{formatTimeAgo(user.created_at)}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-gray-500 text-center py-4">No users yet</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -94,20 +136,18 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">Course Title {item}</p>
-                        <p className="text-sm text-gray-500">By Creator {item}</p>
-                      </div>
+                {latestCourses.length > 0 ? latestCourses.map((course) => (
+                  <div key={course.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <img src={course.thumbnail_url || 'https://via.placeholder.com/60'} alt={course.title} className="w-16 h-12 object-cover rounded" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-800 line-clamp-1">{course.title}</p>
+                      <p className="text-sm text-gray-500 line-clamp-1">{course.description || 'No description'}</p>
                     </div>
-                    <span className="text-xs text-gray-500">1d ago</span>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">{formatTimeAgo(course.created_at)}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-gray-500 text-center py-4">No courses yet</p>
+                )}
               </div>
             </CardContent>
           </Card>
