@@ -95,7 +95,7 @@ export default function AdminProfile() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="p-4 md:p-6 lg:p-8 max-w-2xl mx-auto">
         <header className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-violet-600 flex items-center gap-3">
             <ShieldCheck className="w-8 h-8 text-violet-600" />
             Admin Profile
           </h1>

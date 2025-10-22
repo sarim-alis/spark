@@ -162,6 +162,52 @@ export default function AdminLayout() {
             border-bottom: 1px solid rgba(203, 213, 225, 0.3);
           }
         }
+
+        /* Global purple theme overrides for existing amber/orange utilities */
+
+        /* Gradients */
+        .from-amber-500 {
+          --tw-gradient-from: #7c3aed var(--tw-gradient-from-position);
+          --tw-gradient-to: rgb(124 58 237 / 0) var(--tw-gradient-to-position);
+          --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        .hover\\:from-amber-600:hover {
+          --tw-gradient-from: #6d28d9 var(--tw-gradient-from-position);
+          --tw-gradient-to: rgb(109 40 217 / 0) var(--tw-gradient-to-position);
+          --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        .from-amber-500\\/20 {
+          --tw-gradient-from: rgb(124 58 237 / 0.2) var(--tw-gradient-from-position);
+          --tw-gradient-to: rgb(124 58 237 / 0) var(--tw-gradient-to-position);
+          --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        .to-orange-500 {
+          --tw-gradient-to: #a78bfa var(--tw-gradient-to-position); /* violet-400 */
+        }
+        .hover\\:to-orange-600:hover {
+          --tw-gradient-to: #7c3aed var(--tw-gradient-to-position); /* violet-600 */
+        }
+        .to-orange-500\\/20 {
+          --tw-gradient-to: rgb(167 139 250 / 0.2) var(--tw-gradient-to-position);
+        }
+
+        /* Solid backgrounds */
+        .bg-amber-500 { background-color: #8b5cf6 !important; }
+        .bg-amber-600 { background-color: #7c3aed !important; }
+        .hover\\:bg-amber-600:hover { background-color: #7c3aed !important; }
+        .bg-amber-100 { background-color: #ede9fe !important; } /* violet-100 */
+
+        /* Text colors */
+        .text-amber-400 { color: #c4b5fd !important; } /* violet-300 */
+        .text-amber-500 { color: #a78bfa !important; } /* violet-400 */
+        .text-amber-600 { color: #7c3aed !important; } /* violet-600 */
+
+        /* Icon fills (e.g., stars) */
+        .fill-amber-400 { fill: #c4b5fd !important; color: #c4b5fd !important; }
+
+        /* Borders and subtle variants */
+        .border-amber-500 { border-color: #8b5cf6 !important; }
+        .border-amber-500\\/30 { border-color: rgb(139 92 246 / 0.30) !important; }
       `}</style>
 
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-white to-slate-100">

@@ -62,7 +62,7 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <ShieldCheck className="w-8 h-8 text-violet-600" />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            <h1 className="text-3xl md:text-4xl font-bold text-violet-600">
               Admin Dashboard
             </h1>
           </div>
