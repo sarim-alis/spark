@@ -275,7 +275,7 @@ export default function AdminLayout() {
                   <DropdownMenuItem asChild>
                     <Link to="/admin/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      <span>Admin Profile</span>
+                      <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50">
