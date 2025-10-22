@@ -194,18 +194,10 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
           <h3 className="font-semibold text-slate-700 mb-2">Total Courses</h3>
           <p className="text-2xl font-bold text-slate-900">2</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-          <h3 className="font-semibold text-slate-700 mb-2">Total Students</h3>
-          <p className="text-2xl font-bold text-slate-900">85</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-          <h3 className="font-semibold text-slate-700 mb-2">Total Revenue</h3>
-          <p className="text-2xl font-bold text-slate-900">$5,700</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
           <h3 className="font-semibold text-slate-700 mb-2">Avg Rating</h3>
