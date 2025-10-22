@@ -278,12 +278,6 @@ export default function AdminLayout() {
                       <span>Admin Profile</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/" className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      <span>Go to Main App</span>
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sign Out</span>
