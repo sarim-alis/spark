@@ -104,6 +104,12 @@ export const storage = {
 // User API
 export const User = {
   me: async () => {
+    // First try to get from auth_user (real backend data)
+    const authUser = localStorage.getItem('auth_user');
+    if (authUser) {
+      return JSON.parse(authUser);
+    }
+    // Fallback to coursespark_user (demo data)
     return storage.get(STORAGE_KEYS.USER);
   },
   update: async (updates) => {

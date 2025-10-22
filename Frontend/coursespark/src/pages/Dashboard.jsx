@@ -4,7 +4,7 @@ import { User, Course, Enrollment } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, BookOpen, Star, Sparkles, Bot, Wand2, ShoppingCart, Eye } from "lucide-react";
 
 // Dashboard Components
 import DashboardStats from "../components/dashboard/DashboardStats";
@@ -72,34 +72,148 @@ function LoggedInDashboard({ user }) {
   }, [loadDashboardData]); // loadDashboardData is a dependency
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <div className="flex flex-col space-y-4">
-          <div className="text-center sm:text-left">
-            <h1 className="text-lg sm:text-2xl font-bold text-slate-800 mb-1">
-              Welcome back, {user?.name?.split(' ')[0] || 'Creator'}! 👋
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-1">
+              Welcome back, {user?.name?.split(' ')[0]?.charAt(0)?.toUpperCase() + user?.name?.split(' ')[0]?.slice(1) || 'Creator'}! 👋
             </h1>
-            <p className="text-slate-600 text-xs sm:text-sm">
+            <p className="text-slate-600 text-sm">
               Ready to create something amazing today?
             </p>
           </div>
-          <div className="flex justify-center sm:justify-end">
-            <Link to={createPageUrl("CourseCreator")} className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg transition-all duration-300 hover:scale-105 py-2.5 text-sm">
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Create New Course
-              </Button>
-            </Link>
+          <Link to={createPageUrl("CourseCreator")}>
+            <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold shadow-lg transition-all duration-300 hover:scale-105 px-6 py-3 rounded-xl">
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Create New Course
+            </Button>
+          </Link>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-slate-600 font-medium text-sm">Total Courses</h3>
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">{stats.totalCourses}</p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-slate-600 font-medium text-sm">Average Rating</h3>
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <Star className="w-5 h-5 text-purple-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">{stats.avgRating.toFixed(1)}</p>
           </div>
         </div>
-      </div>
-      <DashboardStats stats={stats} isLoading={isLoading} />
-      <div className="grid lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 order-2 lg:order-1">
-          <RecentCourses courses={recentCourses} isLoading={isLoading} />
-        </div>
-        <div className="order-1 lg:order-2">
-          <QuickActions />
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Recent Courses */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-800">Recent Courses</h2>
+                <Link to="/courses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
+                  View All
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+              
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                </div>
+              ) : recentCourses.length > 0 ? (
+                <div className="space-y-3">
+                  {recentCourses.map((course) => (
+                    <div key={course.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                      <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
+                        <BookOpen className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-800">{course.title}</h3>
+                        <p className="text-sm text-slate-600">{course.category || 'Business'}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
+                        <Eye className="w-4 h-4 text-slate-400" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <BookOpen className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                  <p>No courses yet. Create your first course!</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Sparkles className="w-5 h-5 text-violet-600" />
+                <h2 className="text-xl font-bold text-slate-800">Quick Actions</h2>
+              </div>
+              
+              <div className="space-y-3">
+                <Link to={createPageUrl("CourseCreator")}>
+                  <div className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <PlusCircle className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">Create Course</h3>
+                        <p className="text-xs text-violet-100">AI-powered generation</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <Bot className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">AI Tutor</h3>
+                      <p className="text-xs text-teal-100">Get instant help</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <Wand2 className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">AI Tools</h3>
+                      <p className="text-xs text-pink-100">Notes & Resume</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <ShoppingCart className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">My Storefront</h3>
+                      <p className="text-xs text-blue-100">Sell your courses</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -172,55 +286,148 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <div className="flex flex-col space-y-4">
-          <div className="text-center sm:text-left">
-            <h1 className="text-lg sm:text-2xl font-bold text-slate-800 mb-1">
-              Welcome back, {user.full_name?.split(' ')[0] || 'Creator'}! 👋
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-1">
+              Welcome back, {(user.full_name?.split(' ')[0] || user.name?.split(' ')[0])?.charAt(0)?.toUpperCase() + (user.full_name?.split(' ')[0] || user.name?.split(' ')[0])?.slice(1) || 'Creator'}! 👋
             </h1>
-            <p className="text-slate-600 text-xs sm:text-sm">
+            <p className="text-slate-600 text-sm">
               Ready to create something amazing today?
             </p>
           </div>
-          <div className="flex justify-center sm:justify-end">
-            <Link to={createPageUrl("CourseCreator")} className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg transition-all duration-300 hover:scale-105 py-2.5 text-sm">
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Create New Course
-              </Button>
-            </Link>
+          <Link to={createPageUrl("CourseCreator")}>
+            <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold shadow-lg transition-all duration-300 hover:scale-105 px-6 py-3 rounded-xl">
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Create New Course
+            </Button>
+          </Link>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-slate-600 font-medium text-sm">Total Courses</h3>
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">2</p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-slate-600 font-medium text-sm">Average Rating</h3>
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <Star className="w-5 h-5 text-purple-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">4.65</p>
           </div>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-          <h3 className="font-semibold text-slate-700 mb-2">Total Courses</h3>
-          <p className="text-2xl font-bold text-slate-900">2</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-          <h3 className="font-semibold text-slate-700 mb-2">Avg Rating</h3>
-          <p className="text-2xl font-bold text-slate-900">4.65</p>
-        </div>
-      </div>
-      
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-xl font-bold text-slate-800 mb-4">Recent Courses</h2>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-            <div>
-              <h3 className="font-semibold text-slate-800">Introduction to React</h3>
-              <p className="text-sm text-slate-600">50 students • $2,500 revenue</p>
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Recent Courses */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-800">Recent Courses</h2>
+                <Link to="/courses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
+                  View All
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                  <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-800">Introduction to React</h3>
+                    <p className="text-sm text-slate-600">Business</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
+                    <Eye className="w-4 h-4 text-slate-400" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                  <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-800">Advanced JavaScript</h3>
+                    <p className="text-sm text-slate-600">Business</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
+                    <Eye className="w-4 h-4 text-slate-400" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <span className="text-amber-500 font-semibold">4.5 ⭐</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-            <div>
-              <h3 className="font-semibold text-slate-800">Advanced JavaScript</h3>
-              <p className="text-sm text-slate-600">35 students • $3,200 revenue</p>
+
+          {/* Quick Actions */}
+          <div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Sparkles className="w-5 h-5 text-violet-600" />
+                <h2 className="text-xl font-bold text-slate-800">Quick Actions</h2>
+              </div>
+              
+              <div className="space-y-3">
+                <Link to={createPageUrl("CourseCreator")}>
+                  <div className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <PlusCircle className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">Create Course</h3>
+                        <p className="text-xs text-violet-100">AI-powered generation</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <Bot className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">AI Tutor</h3>
+                      <p className="text-xs text-teal-100">Get instant help</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <Wand2 className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">AI Tools</h3>
+                      <p className="text-xs text-pink-100">Notes & Resume</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                  <div className="flex items-center gap-3 text-white">
+                    <ShoppingCart className="w-5 h-5" />
+                    <div>
+                      <h3 className="font-semibold">My Storefront</h3>
+                      <p className="text-xs text-blue-100">Sell your courses</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <span className="text-amber-500 font-semibold">4.8 ⭐</span>
           </div>
         </div>
       </div>
