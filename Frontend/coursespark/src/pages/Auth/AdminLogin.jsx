@@ -45,14 +45,14 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-50 to-red-100 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4">
       <Card className="w-full max-w-md shadow-2xl rounded-xl overflow-hidden">
         <div className="p-8">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
               <ShieldCheck className="w-10 h-10 text-white" />
             </div>
-            <Title level={3} className="!mb-0 !text-red-600 font-bold text-center">
+            <Title level={3} className="!mb-0 !text-[#a78bfa] font-bold text-center">
               Admin Panel
             </Title>
             <p className="text-gray-500 text-sm mt-2">Sign in to access admin dashboard</p>
@@ -91,17 +91,11 @@ export default function AdminLogin() {
                 loading={loading} 
                 type="primary" 
                 htmlType="submit" 
-                className="w-full h-12 bg-gradient-to-r from-red-500 to-orange-600 hover:!bg-red-700 rounded-lg py-2 font-semibold mt-2 transition-all duration-300 border-0"
+                className="w-full h-12 bg-[#a78bfa] hover:!bg-[#3c315e] rounded-lg py-2 font-semibold mt-2 transition-all duration-300"
               >
-                Sign In as Admin
+                Login as
               </Button>
             </Form.Item>
-          
-            <div className="mt-4 text-center">
-              <Link to="/login" className="text-red-600 hover:text-red-700 text-sm">
-                ← Back to User Login
-              </Link>
-            </div>
           </Form>
         </div>
       </Card>
