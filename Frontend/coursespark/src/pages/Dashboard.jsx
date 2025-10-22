@@ -133,7 +133,7 @@ function LoggedInDashboard({ user }) {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-800">Recent Courses</h2>
-                <Link to="/courses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
+                <Link to="/mycourses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
                   View All
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -403,7 +403,7 @@ export default function Dashboard() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-800">Recent Courses</h2>
-                <Link to="/courses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
+                <Link to="/mycourses" className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1">
                   View All
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
