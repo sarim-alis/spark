@@ -1,7 +1,7 @@
 // Imports.
 import { useState, useEffect } from 'react';
 import { Table, Tag, Popconfirm, Button, message, Image, Drawer, Form, Input, InputNumber, Select, Upload } from 'antd';
-import { DeleteOutlined, EyeOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
 import { BookOpen, ShieldCheck } from 'lucide-react';
 import { adminAPI } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
@@ -219,13 +219,13 @@ const AdminCourses = () => {
         }
       },
     },
-    {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
+    // {
+    //   title: 'Created At',
+    //   dataIndex: 'created_at',
+    //   key: 'created_at',
+    //   sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+    //   render: (date) => new Date(date).toLocaleDateString(),
+    // },
     {
       title: 'Actions',
       key: 'actions',
