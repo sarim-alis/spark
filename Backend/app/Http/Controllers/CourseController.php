@@ -51,6 +51,37 @@ class CourseController extends Controller
     }
 
     /**
+     * Get all courses for admin (no user filter).
+     */
+    public function adminIndex(Request $request)
+    {
+        // Start query with creator relationship
+        $query = Course::with('creator');
+
+        // Filter by is_published if provided
+        if ($request->has('is_published')) {
+            $query->where('is_published', $request->is_published);
+        }
+
+        // Filter by category if provided
+        if ($request->has('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Filter by level if provided
+        if ($request->has('level')) {
+            $query->where('level', $request->level);
+        }
+
+        $courses = $query->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses
+        ]);
+    }
+
+    /**
      * Store a newly created course.
      */
     public function store(Request $request)
