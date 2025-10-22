@@ -73,7 +73,7 @@ const adminNavigationItems = [
 const Logo = () => (
   <Link to="/admin/dashboard" className="flex items-center gap-2">
     <div className="flex items-center gap-2">
-      <ShieldCheck className="w-8 h-8 text-red-500" />
+      <ShieldCheck className="w-8 h-8 text-violet-400" />
       <span className="text-xl font-bold text-white">Admin Panel</span>
     </div>
   </Link>
@@ -144,9 +144,9 @@ export default function AdminLayout() {
     <SidebarProvider>
       <style>{`
         :root {
-          --admin-sidebar-bg: linear-gradient(180deg, #7f1d1d 0%, #991b1b 100%);
-          --admin-accent: #ef4444;
-          --admin-accent-hover: #dc2626;
+          --admin-sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+          --admin-accent: #8b5cf6;
+          --admin-accent-hover: #7c3aed;
           --text-primary: #f8fafc;
           --text-secondary: #cbd5e1;
         }
@@ -164,15 +164,15 @@ export default function AdminLayout() {
         }
       `}</style>
 
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-red-50 via-white to-red-100">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <Sidebar className="border-r-0 shadow-2xl hidden md:flex" style={{background: "var(--admin-sidebar-bg)"}}>
-          <SidebarHeader className="border-b border-red-700/50 p-4 lg:p-6">
+          <SidebarHeader className="border-b border-slate-700/50 p-4 lg:p-6">
             <Logo />
           </SidebarHeader>
 
           <SidebarContent className="p-2 lg:p-3">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-semibold text-red-200 uppercase tracking-wider px-2 lg:px-3 py-3">
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 lg:px-3 py-3">
                 Admin Panel
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -183,13 +183,13 @@ export default function AdminLayout() {
                         asChild
                         className={`group relative overflow-hidden rounded-lg transition-all duration-300 ${
                           location.pathname === item.url
-                            ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-300 shadow-sm border border-red-500/30'
-                            : 'text-red-100 hover:text-white hover:bg-red-700/50'
+                            ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 shadow-sm border border-amber-500/30'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 lg:gap-4 px-2 py-2 lg:px-4 lg:py-3">
                           <item.icon className={`w-4 h-4 lg:w-5 lg:h-5 transition-colors ${
-                            location.pathname === item.url ? 'text-red-300' : 'text-red-300 group-hover:text-red-200'
+                            location.pathname === item.url ? 'text-amber-400' : 'text-slate-400 group-hover:text-amber-400'
                           }`} />
                           <div className="flex-1 min-w-0 hidden lg:block">
                             <div className="font-semibold text-sm">{item.title}</div>
@@ -207,12 +207,12 @@ export default function AdminLayout() {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-red-700/50 p-2 lg:p-4">
+          <SidebarFooter className="border-t border-slate-700/50 p-2 lg:p-4">
             {user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="w-full rounded-lg transition-colors hover:bg-red-700/50">
+                <DropdownMenuTrigger className="w-full rounded-lg transition-colors hover:bg-slate-700/50">
                   <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4">
-                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-red-500 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-red-400/30">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-violet-400/30">
                       {user.profile_picture_url ? (
                         <img src={user.profile_picture_url} alt={user.name} className="w-full h-full object-cover rounded-full" />
                       ) : (
@@ -220,8 +220,8 @@ export default function AdminLayout() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0 hidden lg:block text-left">
-                      <p className="font-semibold text-red-100 text-sm truncate capitalize">{user.name}</p>
-                      <p className="text-xs text-red-300 truncate">{user.email}</p>
+                      <p className="font-semibold text-slate-200 text-sm truncate capitalize">{user.name}</p>
+                      <p className="text-xs text-slate-400 truncate">{user.email}</p>
                     </div>
                   </div>
                 </DropdownMenuTrigger>
@@ -247,7 +247,7 @@ export default function AdminLayout() {
             ) : (
               <Button
                 onClick={() => navigate('/admin/login')}
-                className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold shadow-lg"
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg"
               >
                 <User className="w-4 h-4 mr-2" />
                 <span className="hidden lg:inline">Sign In</span>
@@ -257,9 +257,9 @@ export default function AdminLayout() {
         </Sidebar>
 
         <main className="flex-1 flex flex-col min-w-0">
-          <header className="mobile-nav md:static bg-white/90 backdrop-blur-sm border-b border-red-200/60 px-3 md:px-6 py-2 flex items-center justify-between h-14 md:h-16">
+          <header className="mobile-nav md:static bg-white/90 backdrop-blur-sm border-b border-slate-200/60 px-3 md:px-6 py-2 flex items-center justify-between h-14 md:h-16">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="hover:bg-red-100 p-1.5 rounded-lg transition-colors duration-200 -ml-1 md:hidden" />
+              <SidebarTrigger className="hover:bg-slate-100 p-1.5 rounded-lg transition-colors duration-200 -ml-1 md:hidden" />
               <div className="hidden md:block">
                 <Logo />
               </div>
@@ -271,7 +271,7 @@ export default function AdminLayout() {
 
             {user ? (
               <Link to="/admin/profile">
-                <div className="w-9 h-9 bg-gradient-to-r from-red-500 to-orange-600 rounded-full flex items-center justify-center ring-2 ring-red-400/30 hover:ring-red-400/50 transition-all cursor-pointer">
+                <div className="w-9 h-9 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center ring-2 ring-violet-400/30 hover:ring-violet-400/50 transition-all cursor-pointer">
                   {user.profile_picture_url ? (
                     <img src={user.profile_picture_url} alt={user.name} className="w-full h-full object-cover rounded-full" />
                   ) : (

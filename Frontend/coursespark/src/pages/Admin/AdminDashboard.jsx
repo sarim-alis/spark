@@ -56,12 +56,12 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="p-4 md:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck className="w-8 h-8 text-red-600" />
+            <ShieldCheck className="w-8 h-8 text-violet-600" />
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
               Admin Dashboard
             </h1>
