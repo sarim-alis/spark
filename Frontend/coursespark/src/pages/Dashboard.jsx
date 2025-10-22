@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { User, Course, Enrollment } from "@/api/entities";
+import { courseAPI } from "@/services/courseApi";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -34,31 +35,41 @@ function LoggedInDashboard({ user }) {
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Ensure user.email is available before making the call
+      // Ensure user is available before making the call
       if (!user?.email) {
         console.warn("User email not available, skipping dashboard data load.");
         setIsLoading(false);
         return;
       }
-      const courses = await Course.filter({ created_by: user.email }, '-created_date', 10);
-      setRecentCourses(courses);
+      
+      // Fetch only published courses (is_published = 1) for the logged-in user
+      const response = await courseAPI.list({
+        is_published: 1
+      });
+      console.log('Dashboard - API Response:', response);
+      console.log('Dashboard - Response data:', response.data);
+      
+      const allCourses = response.data.data || [];
+      console.log('Dashboard - All courses:', allCourses);
+      
+      // Get the 5 most recent courses
+      const recentCoursesData = allCourses
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
+      
+      console.log('Dashboard - Recent 5 courses:', recentCoursesData);
+      setRecentCourses(recentCoursesData);
 
-      const allEnrollments = await Enrollment.list();
-      const myCourseIds = courses.map(c => c.id);
-      const myEnrollments = allEnrollments.filter(e => myCourseIds.includes(e.course_id));
-      
-      const totalRevenue = courses.reduce((sum, c) => sum + (c.total_sales || 0), 0);
-      const totalStudents = courses.reduce((sum, c) => sum + (c.total_students || 0), 0);
-      
-      const coursesWithRatings = courses.filter(c => (c.rating || 0) > 0);
+      // Calculate stats
+      const coursesWithRatings = allCourses.filter(c => (c.rating || 0) > 0);
       const avgRating = coursesWithRatings.length > 0
         ? coursesWithRatings.reduce((sum, c) => sum + (c.rating || 0), 0) / coursesWithRatings.length
         : 0;
 
       setStats({
-        totalCourses: courses.length,
-        totalStudents: totalStudents,
-        totalRevenue: totalRevenue,
+        totalCourses: allCourses.length,
+        totalStudents: 0,
+        totalRevenue: 0,
         avgRating: avgRating,
       });
     } catch (error) {
@@ -384,61 +395,8 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <Sparkles className="w-5 h-5 text-violet-600" />
-                <h2 className="text-xl font-bold text-slate-800">Quick Actions</h2>
-              </div>
-              
-              <div className="space-y-3">
-                <Link to={createPageUrl("CourseCreator")}>
-                  <div className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                    <div className="flex items-center gap-3 text-white">
-                      <PlusCircle className="w-5 h-5" />
-                      <div>
-                        <h3 className="font-semibold">Create Course</h3>
-                        <p className="text-xs text-violet-100">AI-powered generation</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link to={createPageUrl("AITutor")}>
-                  <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                    <div className="flex items-center gap-3 text-white">
-                      <Bot className="w-5 h-5" />
-                      <div>
-                        <h3 className="font-semibold">AI Tutor</h3>
-                        <p className="text-xs text-teal-100">Get instant help</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link to={createPageUrl("AITools")}>
-                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                    <div className="flex items-center gap-3 text-white">
-                      <Wand2 className="w-5 h-5" />
-                      <div>
-                        <h3 className="font-semibold">AI Tools</h3>
-                        <p className="text-xs text-pink-100">Notes & Resume</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link to={createPageUrl("Storefront")}>
-                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                    <div className="flex items-center gap-3 text-white">
-                      <ShoppingCart className="w-5 h-5" />
-                      <div>
-                        <h3 className="font-semibold">My Storefront</h3>
-                        <p className="text-xs text-blue-100">Sell your courses</p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">                 
+              <QuickActions />
             </div>
           </div>
         </div>
