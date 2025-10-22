@@ -56,18 +56,18 @@ const adminNavigationItems = [
     icon: BookOpen,
     description: "All Courses"
   },
-  {
-    title: "Reports",
-    url: "/admin/reports",
-    icon: BarChart3,
-    description: "Analytics"
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-    description: "System Config"
-  },
+  // {
+  //   title: "Reports",
+  //   url: "/admin/reports",
+  //   icon: BarChart3,
+  //   description: "Analytics"
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/admin/settings",
+  //   icon: Settings,
+  //   description: "System Config"
+  // },
 ];
 
 const Logo = () => (
