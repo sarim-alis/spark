@@ -287,6 +287,7 @@ export const generateNotesWithAI = async (topic, depth) => {
     console.log('🤖 Using OpenAI API (USE_API = true)');
     
     const depthInstructions = {
+      brief: 'Create a brief overview with only the most essential points, key concepts, and main takeaways. Keep it concise and to the point, around 300-500 words.',
       comprehensive: 'Create comprehensive study notes with clear sections, key concepts, examples, and practical applications. Include around 800-1200 words.',
       detailed: 'Create highly detailed and in-depth study notes with extensive explanations, multiple examples, case studies, advanced concepts, and thorough analysis. Include around 1500-2500 words with deep coverage of all aspects.'
     };
@@ -331,7 +332,7 @@ Return the notes in markdown format.`;
           }
         ],
         temperature: 0.7,
-        max_tokens: depth === 'detailed' ? 3000 : 2000
+        max_tokens: depth === 'brief' ? 800 : (depth === 'detailed' ? 3000 : 2000)
       })
     });
 

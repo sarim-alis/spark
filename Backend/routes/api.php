@@ -3,6 +3,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\InterviewPrepController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -53,4 +54,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('portfolio/{portfolio}', [PortfolioController::class, 'update']);
     Route::patch('portfolio/{portfolio}', [PortfolioController::class, 'update']);
     Route::delete('portfolio/{portfolio}', [PortfolioController::class, 'destroy']);
+    
+    // Notes
+    Route::get('notes', [NoteController::class, 'index']); // Get user's notes
+    Route::post('notes', [NoteController::class, 'store']); // Create note
+    Route::get('notes/all', [NoteController::class, 'all']); // Get all notes (admin)
+    Route::get('notes/user/{userId}', [NoteController::class, 'getByUser']); // Get notes by user
+    Route::get('notes/{note}', [NoteController::class, 'show']); // Get single note
+    Route::put('notes/{note}', [NoteController::class, 'update']); // Update note
+    Route::patch('notes/{note}', [NoteController::class, 'update']); // Update note
+    Route::delete('notes/{note}', [NoteController::class, 'destroy']); // Delete note
 });

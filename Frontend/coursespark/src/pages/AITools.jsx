@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Award, Loader2, Download, Sparkles, Lock, Star } from 'lucide-react';
+import { FileText, Award, Loader2, Download, Sparkles, Lock, Star, Save } from 'lucide-react';
 import { InvokeLLM } from '@/api/integrations';
 import { User } from '@/api/entities';
 import ReactMarkdown from 'react-markdown';
 import { generateNotesWithAI } from '@/services/aiNotesGenerator';
+import { noteAPI } from '@/services/noteApi';
 
 
 // Frontend.
@@ -153,12 +154,15 @@ function NotesGenerator() {
   const [depth, setDepth] = useState('comprehensive');
   const [notes, setNotes] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
     
     setIsGenerating(true);
     setNotes('');
+    setSaveMessage('');
 
     try {
       const result = await generateNotesWithAI(topic, depth);
@@ -173,6 +177,32 @@ function NotesGenerator() {
       setNotes('Error generating notes. Please try again.');
     }
     setIsGenerating(false);
+  };
+
+  const handleSave = async () => {
+    if (!notes.trim() || !topic.trim()) return;
+    
+    setIsSaving(true);
+    setSaveMessage('');
+
+    try {
+      const response = await noteAPI.create({
+        topic: topic,
+        depth: depth,
+        content: notes
+      });
+      
+      if (response.data.success) {
+        setSaveMessage('✅ Notes saved successfully!');
+        setTimeout(() => setSaveMessage(''), 3000);
+      } else {
+        setSaveMessage('❌ Failed to save notes');
+      }
+    } catch (error) {
+      console.error('Save notes error:', error);
+      setSaveMessage('❌ Error saving notes');
+    }
+    setIsSaving(false);
   };
 
   const handleDownload = () => {
@@ -249,6 +279,7 @@ function NotesGenerator() {
               onChange={(e) => setDepth(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
+              <option value="brief">Brief Overview</option>
               <option value="comprehensive">Comprehensive</option>
               <option value="detailed">Highly Detailed</option>
             </select>
@@ -278,17 +309,46 @@ function NotesGenerator() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Generated Notes</CardTitle>
           {notes && (
-            <Button 
-              onClick={handleDownload} 
-              size="sm"
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleSave} 
+                size="sm"
+                disabled={isSaving}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save
+                  </>
+                )}
+              </Button>
+              <Button 
+                onClick={handleDownload} 
+                size="sm"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+            </div>
           )}
         </CardHeader>
         <CardContent>
+          {saveMessage && (
+            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${
+              saveMessage.includes('✅') 
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {saveMessage}
+            </div>
+          )}
           {notes ? (
             <div className="prose prose-sm max-w-none">
               <ReactMarkdown>{notes}</ReactMarkdown>
