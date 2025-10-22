@@ -19,7 +19,11 @@ export const getAICodeHelp = async ({ code, question, language = 'javascript' })
       };
     }
 
-    const prompt = `You are an expert programming tutor. A student has provided the following ${language} code and has a question about it.
+    let prompt;
+    
+    // If there's code, include it in the prompt
+    if (code && code.trim()) {
+      prompt = `You are an expert programming tutor. A student has provided the following ${language} code and has a question about it.
 
 Code:
 \`\`\`${language}
@@ -35,6 +39,20 @@ Please provide a clear, helpful, and educational response. Include:
 4. Examples if helpful
 
 Keep your response concise but thorough, and use a friendly, encouraging tone.`;
+    } else {
+      // No code provided, just answer the question directly
+      prompt = `You are an expert programming tutor and educator. A student has asked you the following question:
+
+${question}
+
+Please provide a clear, helpful, and educational response. Include:
+1. A direct answer to their question
+2. Explanation of relevant concepts
+3. Best practices or suggestions if applicable
+4. Code examples if helpful to illustrate the concept
+
+Keep your response concise but thorough, and use a friendly, encouraging tone.`;
+    }
 
     console.log('🤖 Calling OpenAI API for code help...');
     
@@ -49,7 +67,9 @@ Keep your response concise but thorough, and use a friendly, encouraging tone.`;
         messages: [
           {
             role: 'system',
-            content: 'You are an expert programming tutor who provides clear, helpful explanations about code. You are patient, encouraging, and focus on helping students understand concepts deeply.'
+            content: code && code.trim() 
+              ? 'You are an expert programming tutor who provides clear, helpful explanations about code. You are patient, encouraging, and focus on helping students understand concepts deeply.'
+              : 'You are an expert tutor and educator who provides clear, helpful explanations on any topic. You are patient, encouraging, and focus on helping students understand concepts deeply. Provide practical examples and actionable advice.'
           },
           {
             role: 'user',
