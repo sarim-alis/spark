@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+// Imports.
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, BookOpen, DollarSign, TrendingUp, Activity, ShieldCheck } from 'lucide-react';
+import { Users, BookOpen,  ShieldCheck } from 'lucide-react';
 
+
+// Frontend.
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -19,22 +22,8 @@ export default function AdminDashboard() {
   }, []);
 
   const statCards = [
-    {
-      title: 'Total Users',
-      value: stats.totalUsers.toLocaleString(),
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      change: '+12.5%'
-    },
-    {
-      title: 'Total Courses',
-      value: stats.totalCourses.toLocaleString(),
-      icon: BookOpen,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-      change: '+8.2%'
-    },
+    { title: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-blue-600', bgColor: 'bg-blue-100'},
+    { title: 'Total Courses', value: stats.totalCourses.toLocaleString(), icon: BookOpen, color: 'text-green-600', bgColor: 'bg-green-100'},
   ];
 
   return (
