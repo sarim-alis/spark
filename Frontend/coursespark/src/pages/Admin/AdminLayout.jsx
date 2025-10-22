@@ -56,25 +56,25 @@ const adminNavigationItems = [
     icon: BookOpen,
     description: "All Courses"
   },
-  {
-    title: "Reports",
-    url: "/admin/reports",
-    icon: BarChart3,
-    description: "Analytics"
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-    description: "System Config"
-  },
+  // {
+  //   title: "Reports",
+  //   url: "/admin/reports",
+  //   icon: BarChart3,
+  //   description: "Analytics"
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/admin/settings",
+  //   icon: Settings,
+  //   description: "System Config"
+  // },
 ];
 
 const Logo = () => (
   <Link to="/admin/dashboard" className="flex items-center gap-2">
     <div className="flex items-center gap-2">
       <ShieldCheck className="w-8 h-8 text-violet-400" />
-      <span className="text-xl font-bold text-white">Admin Panel</span>
+      <span className="text-xl font-bold !text-[#a78bfa]">Admin Panel</span>
     </div>
   </Link>
 );
@@ -144,9 +144,9 @@ export default function AdminLayout() {
     <SidebarProvider>
       <style>{`
         :root {
-          --admin-sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-          --admin-accent: #8b5cf6;
-          --admin-accent-hover: #7c3aed;
+          --sidebar-background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+          --accent-gold: #8b5cf6;
+          --accent-gold-hover: #7c3aed;
           --text-primary: #f8fafc;
           --text-secondary: #cbd5e1;
         }
@@ -211,7 +211,7 @@ export default function AdminLayout() {
       `}</style>
 
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <Sidebar className="border-r-0 shadow-2xl hidden md:flex" style={{background: "var(--admin-sidebar-bg)"}}>
+        <Sidebar className="border-r-0 shadow-2xl hidden md:flex" style={{background: "var(--sidebar-background)"}}>
           <SidebarHeader className="border-b border-slate-700/50 p-4 lg:p-6">
             <Logo />
           </SidebarHeader>
