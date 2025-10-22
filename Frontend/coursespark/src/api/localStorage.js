@@ -107,7 +107,13 @@ export const User = {
     // First try to get from auth_user (real backend data)
     const authUser = localStorage.getItem('auth_user');
     if (authUser) {
-      return JSON.parse(authUser);
+      const userData = JSON.parse(authUser);
+      // Always unlock AI features for logged-in users
+      return {
+        ...userData,
+        ai_tutor_unlocked: true,
+        ai_tools_unlocked: true
+      };
     }
     // Fallback to coursespark_user (demo data)
     return storage.get(STORAGE_KEYS.USER);
