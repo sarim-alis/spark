@@ -387,36 +387,36 @@ function ResumeBuilder() {
     setResume('');
 
     try {
-      const prompt = `Create a professional ATS-friendly resume based on the following information:
+      const prompt = `You are a professional resume writer. Create a highly customized, ATS-friendly resume using EXACTLY the information provided below. Do NOT add generic filler content or make up information.
 
 **Full Name:** ${formData.name}
 **Email:** ${formData.email}
 **Phone:** ${formData.phone}
 
 **Professional Summary:**
-${formData.summary}
+${formData.summary || 'Not provided'}
 
 **Work Experience:**
-${formData.experience}
+${formData.experience || 'Not provided'}
 
 **Education:**
-${formData.education}
+${formData.education || 'Not provided'}
 
 **Skills:**
-${formData.skills}
+${formData.skills || 'Not provided'}
 
-Please format this as a professional resume with:
-- Name at the top in large, bold text
-- Contact information (Email, Phone) on the second line
-- Clear section headers (Summary, Technical Skills, Experience, Projects, Education) in bold
-- Bullet points (•) for all achievements and responsibilities
-- Professional language with action verbs
-- Quantified achievements where possible (percentages, numbers)
-- ATS-friendly format (no tables, simple formatting)
-- Modern, clean structure
-- Each job/project should have: Title, Company/Context, Date Range, and bullet points
+IMPORTANT INSTRUCTIONS:
+1. Use ONLY the information provided above - do not invent or add fake details
+2. If a section has "Not provided", create a minimal placeholder or skip it
+3. Enhance the writing style and make it professional, but keep the SAME facts and details
+4. Add action verbs and improve sentence structure while maintaining accuracy
+5. Format with clear sections: Name, Contact, Summary, Technical Skills, Experience, Education
+6. Use bullet points (•) for achievements
+7. Keep it ATS-friendly (no tables, simple formatting)
+8. Make each bullet point impactful with strong action verbs
+9. If numbers/metrics are provided, keep them; don't add fake ones
 
-Format the output in plain text with clear spacing and structure.`;
+Output the resume in clean, well-structured plain text format.`;
 
       const result = await InvokeLLM({
         prompt,
