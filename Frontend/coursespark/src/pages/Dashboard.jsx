@@ -77,7 +77,7 @@ function LoggedInDashboard({ user }) {
         <div className="flex flex-col space-y-4">
           <div className="text-center sm:text-left">
             <h1 className="text-lg sm:text-2xl font-bold text-slate-800 mb-1">
-              Welcome back, {user?.full_name?.split(' ')[0] || 'Creator'}! 👋
+              Welcome back, {user?.name?.split(' ')[0] || 'Creator'}! 👋
             </h1>
             <p className="text-slate-600 text-xs sm:text-sm">
               Ready to create something amazing today?
