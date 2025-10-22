@@ -74,7 +74,7 @@ const Logo = () => (
   <Link to="/admin/dashboard" className="flex items-center gap-2">
     <div className="flex items-center gap-2">
       <ShieldCheck className="w-8 h-8 text-violet-400" />
-      <span className="text-xl font-bold text-white">Admin Panel</span>
+      <span className="text-xl font-bold !text-[#a78bfa]">Admin Panel</span>
     </div>
   </Link>
 );
