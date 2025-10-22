@@ -148,19 +148,29 @@ function LoggedInDashboard({ user }) {
               ) : recentCourses.length > 0 ? (
                 <div className="space-y-3">
                   {recentCourses.map((course) => (
-                    <div key={course.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                      <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
-                        <BookOpen className="w-6 h-6 text-white" />
+                    <Link key={course.id} to={`/courseviewer/${course.id}`}>
+                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        {course.thumbnail_url ? (
+                          <img 
+                            src={course.thumbnail_url} 
+                            alt={course.title}
+                            className="w-16 h-16 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg w-16 h-16 flex items-center justify-center">
+                            <BookOpen className="w-6 h-6 text-white" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-800">{course.title}</h3>
+                          <p className="text-sm text-slate-600">{course.category || 'Business'}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
+                          <Eye className="w-4 h-4 text-slate-400" />
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-800">{course.title}</h3>
-                        <p className="text-sm text-slate-600">{course.category || 'Business'}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
-                        <Eye className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
@@ -258,6 +268,10 @@ export default function Dashboard() {
   console.log('Dashboard component rendering...');
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [recentCourses, setRecentCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [avgRating, setAvgRating] = useState(0);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -266,6 +280,11 @@ export default function Dashboard() {
         const userData = await User.me();
         console.log('User loaded:', userData);
         setUser(userData);
+        
+        // Fetch courses after user is loaded
+        if (userData) {
+          await loadCourses();
+        }
       } catch (error) {
         console.log('User not logged in:', error);
         setUser(null);
@@ -275,6 +294,37 @@ export default function Dashboard() {
     };
     checkUser();
   }, []);
+  
+  const loadCourses = async () => {
+    setCoursesLoading(true);
+    try {
+      const response = await courseAPI.list({
+        is_published: 1
+      });
+      const allCourses = response.data.data || [];
+      
+      // Set total courses count
+      setTotalCourses(allCourses.length);
+      
+      // Calculate average rating
+      const coursesWithRatings = allCourses.filter(c => (c.rating || 0) > 0);
+      const calculatedAvgRating = coursesWithRatings.length > 0
+        ? coursesWithRatings.reduce((sum, c) => sum + (c.rating || 0), 0) / coursesWithRatings.length
+        : 0;
+      setAvgRating(calculatedAvgRating);
+      
+      // Get the 5 most recent courses
+      const recentCoursesData = allCourses
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
+      
+      setRecentCourses(recentCoursesData);
+    } catch (error) {
+      console.error('Error loading courses:', error);
+    } finally {
+      setCoursesLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -332,7 +382,7 @@ export default function Dashboard() {
                 <BookOpen className="w-5 h-5 text-blue-600" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-slate-900">2</p>
+            <p className="text-3xl font-bold text-slate-900">{totalCourses}</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
@@ -342,7 +392,7 @@ export default function Dashboard() {
                 <Star className="w-5 h-5 text-purple-600" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-slate-900">4.65</p>
+            <p className="text-3xl font-bold text-slate-900">{avgRating.toFixed(1)}</p>
           </div>
         </div>
 
@@ -361,35 +411,44 @@ export default function Dashboard() {
                 </Link>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                  <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-800">Introduction to React</h3>
-                    <p className="text-sm text-slate-600">Business</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
-                    <Eye className="w-4 h-4 text-slate-400" />
-                  </div>
+              {coursesLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
                 </div>
-
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                  <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-800">Advanced JavaScript</h3>
-                    <p className="text-sm text-slate-600">Business</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
-                    <Eye className="w-4 h-4 text-slate-400" />
-                  </div>
+              ) : recentCourses.length > 0 ? (
+                <div className="space-y-3">
+                  {recentCourses.map((course) => (
+                    <Link key={course.id} to={`/courseviewer/${course.id}`}>
+                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        {course.thumbnail_url ? (
+                          <img 
+                            src={course.thumbnail_url} 
+                            alt={course.title}
+                            className="w-16 h-16 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="bg-gradient-to-br from-violet-600 to-purple-600 p-3 rounded-lg w-16 h-16 flex items-center justify-center">
+                            <BookOpen className="w-6 h-6 text-white" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-800">{course.title}</h3>
+                          <p className="text-sm text-slate-600">{course.category || 'General'}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">Published</span>
+                          <Eye className="w-4 h-4 text-slate-400" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <BookOpen className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                  <p>No courses yet. Create your first course!</p>
+                </div>
+              )}
             </div>
           </div>
 
