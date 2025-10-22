@@ -15,8 +15,6 @@ export default function AdminDashboard() {
     setStats({
       totalUsers: 1250,
       totalCourses: 342,
-      totalRevenue: 45680,
-      activeUsers: 892
     });
   }, []);
 
@@ -37,22 +35,6 @@ export default function AdminDashboard() {
       bgColor: 'bg-green-100',
       change: '+8.2%'
     },
-    {
-      title: 'Revenue',
-      value: `$${stats.totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      change: '+23.1%'
-    },
-    {
-      title: 'Active Users',
-      value: stats.activeUsers.toLocaleString(),
-      icon: Activity,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
-      change: '+5.4%'
-    }
   ];
 
   return (
@@ -70,7 +52,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -80,10 +62,6 @@ export default function AdminDashboard() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
                       <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-                        <TrendingUp className="w-4 h-4" />
-                        {stat.change}
-                      </p>
                     </div>
                     <div className={`${stat.bgColor} p-4 rounded-full`}>
                       <Icon className={`w-8 h-8 ${stat.color}`} />

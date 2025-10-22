@@ -93,7 +93,7 @@ export default function AdminLogin() {
                 htmlType="submit" 
                 className="w-full h-12 bg-[#a78bfa] hover:!bg-[#3c315e] rounded-lg py-2 font-semibold mt-2 transition-all duration-300"
               >
-                Login as
+                Login
               </Button>
             </Form.Item>
           </Form>

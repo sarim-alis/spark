@@ -56,25 +56,25 @@ const adminNavigationItems = [
     icon: BookOpen,
     description: "All Courses"
   },
-  // {
-  //   title: "Reports",
-  //   url: "/admin/reports",
-  //   icon: BarChart3,
-  //   description: "Analytics"
-  // },
-  // {
-  //   title: "Settings",
-  //   url: "/admin/settings",
-  //   icon: Settings,
-  //   description: "System Config"
-  // },
+  {
+    title: "Reports",
+    url: "/admin/reports",
+    icon: BarChart3,
+    description: "Analytics"
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: Settings,
+    description: "System Config"
+  },
 ];
 
 const Logo = () => (
   <Link to="/admin/dashboard" className="flex items-center gap-2">
     <div className="flex items-center gap-2">
       <ShieldCheck className="w-8 h-8 text-violet-400" />
-      <span className="text-xl font-bold !text-[#a78bfa]">Admin Panel</span>
+      <span className="text-xl font-bold text-white">Admin Panel</span>
     </div>
   </Link>
 );

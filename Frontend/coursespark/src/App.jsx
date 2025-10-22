@@ -26,6 +26,8 @@ import AdminDashboard from '@/pages/Admin/AdminDashboard';
 import AdminProfile from '@/pages/Admin/AdminProfile';
 import Portfolio from '@/pages/Portfolio';
 import { Toaster } from 'react-hot-toast';
+import AdminUser from './pages/Admin/AdminUser';
+import AdminCourses from './pages/Admin/AdminCourses';
 
 export default function App() {
   return (
@@ -49,10 +51,10 @@ export default function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="profile" element={<AdminProfile />} />
           {/* Add more admin routes here as needed */}
-          <Route path="users" element={<div className="p-8">Users Management - Coming Soon</div>} />
-          <Route path="courses" element={<div className="p-8">Courses Management - Coming Soon</div>} />
-          <Route path="reports" element={<div className="p-8">Reports - Coming Soon</div>} />
-          <Route path="settings" element={<div className="p-8">Settings - Coming Soon</div>} />
+          <Route path="users" element={<AdminUser />}/>
+          <Route path="courses" element={<AdminCourses />} />
+          {/* <Route path="reports" element={<div className="p-8">Reports - Coming Soon</div>} />
+          <Route path="settings" element={<div className="p-8">Settings - Coming Soon</div>} /> */}
         </Route>
 
         <Route
