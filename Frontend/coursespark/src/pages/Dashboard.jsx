@@ -182,35 +182,41 @@ function LoggedInDashboard({ user }) {
                   </div>
                 </Link>
 
-                <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <Bot className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">AI Tutor</h3>
-                      <p className="text-xs text-teal-100">Get instant help</p>
+                <Link to={createPageUrl("AITutor")}>
+                  <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <Bot className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">AI Tutor</h3>
+                        <p className="text-xs text-teal-100">Get instant help</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <Wand2 className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">AI Tools</h3>
-                      <p className="text-xs text-pink-100">Notes & Resume</p>
+                <Link to={createPageUrl("AITools")}>
+                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <Wand2 className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">AI Tools</h3>
+                        <p className="text-xs text-pink-100">Notes & Resume</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <ShoppingCart className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">My Storefront</h3>
-                      <p className="text-xs text-blue-100">Sell your courses</p>
+                <Link to={createPageUrl("Storefront")}>
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <ShoppingCart className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">My Storefront</h3>
+                        <p className="text-xs text-blue-100">Sell your courses</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -397,35 +403,41 @@ export default function Dashboard() {
                   </div>
                 </Link>
 
-                <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <Bot className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">AI Tutor</h3>
-                      <p className="text-xs text-teal-100">Get instant help</p>
+                <Link to={createPageUrl("AITutor")}>
+                  <div className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <Bot className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">AI Tutor</h3>
+                        <p className="text-xs text-teal-100">Get instant help</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <Wand2 className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">AI Tools</h3>
-                      <p className="text-xs text-pink-100">Notes & Resume</p>
+                <Link to={createPageUrl("AITools")}>
+                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <Wand2 className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">AI Tools</h3>
+                        <p className="text-xs text-pink-100">Notes & Resume</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
-                  <div className="flex items-center gap-3 text-white">
-                    <ShoppingCart className="w-5 h-5" />
-                    <div>
-                      <h3 className="font-semibold">My Storefront</h3>
-                      <p className="text-xs text-blue-100">Sell your courses</p>
+                <Link to={createPageUrl("Storefront")}>
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-md">
+                    <div className="flex items-center gap-3 text-white">
+                      <ShoppingCart className="w-5 h-5" />
+                      <div>
+                        <h3 className="font-semibold">My Storefront</h3>
+                        <p className="text-xs text-blue-100">Sell your courses</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
