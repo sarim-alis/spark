@@ -60,6 +60,25 @@ const AdminSubscription = () => {
     return iconMap[name] || '📦';
   };
 
+  // Emoji icons for dropdown
+  const emojiIcons = [
+    { name: 'Target', emoji: '🎯' },
+    { name: 'Star', emoji: '⭐' },
+    { name: 'Diamond', emoji: '💎' },
+    { name: 'Rocket', emoji: '🚀' },
+    { name: 'Package', emoji: '📦' },
+    { name: 'Crown', emoji: '👑' },
+    { name: 'Fire', emoji: '🔥' },
+    { name: 'Lightning', emoji: '⚡' },
+    { name: 'Trophy', emoji: '🏆' },
+    { name: 'Medal', emoji: '🏅' },
+    { name: 'Gift', emoji: '🎁' },
+    { name: 'Heart', emoji: '❤️' },
+    { name: 'Check', emoji: '✅' },
+    { name: 'Money', emoji: '💰' },
+    { name: 'Chart', emoji: '📊' },
+  ];
+
   // Handle create plan.
   const handleCreatePlan = async (values) => {
     try {
@@ -254,7 +273,7 @@ const AdminSubscription = () => {
               {menu.map(item => (
                 <Select.Option key={item.name} value={item.iconClass} label={item.name}>
                   <div className="flex items-center gap-2">
-                    <i className={item.iconClass} style={{ fontSize: '16px' }}></i>
+                    <i className={item.iconClass} style={{ fontSize: '18px' }}></i>
                     <span>{item.name}</span>
                   </div>
                 </Select.Option>
