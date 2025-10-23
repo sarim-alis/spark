@@ -1,9 +1,8 @@
-import React from 'react'
-
+// Imports.
 const AdminSubscription = () => {
   return (
     <div>AdminSubscription</div>
   )
 }
 
-export default AdminSubscription;
+export default AdminSubscription
