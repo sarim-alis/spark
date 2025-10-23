@@ -54,4 +54,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Course::class, 'created_by');
     }
+
+    /**
+     * Get the admin plans created by this admin user.
+     */
+    public function adminPlans()
+    {
+        return $this->hasMany(AdminPlan::class, 'user_id');
+    }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a creator.
+     */
+    public function isCreator(): bool
+    {
+        return $this->role === 'creator';
+    }
 }
