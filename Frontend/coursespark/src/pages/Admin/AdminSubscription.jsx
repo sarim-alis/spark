@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { MoreVertical, Edit, Trash2, Plus, DollarSign, Users, BookOpen, Video} from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { adminAPI } from '@/services/api';
-import { toast } from 'sonner';
-import { Drawer, Form, Input, InputNumber, Switch, Radio, Space, Segmented, Select } from 'antd';
+import toast from 'react-hot-toast';
+import { Drawer, Form, Input, InputNumber, Segmented, Select } from 'antd';
 import { menu } from '@/api/menu.js';
 
 
@@ -27,11 +27,12 @@ const AdminSubscription = () => {
     try {
       setLoading(true);
       const response = await adminAPI.getAllPlans();
+      console.log('Fetched plans:', response.data);
       setPlans(response.data.data || []);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching plans:', error);
       toast.error('Failed to load subscription plans');
-    } finally {
       setLoading(false);
     }
   };
@@ -50,7 +51,16 @@ const AdminSubscription = () => {
     }
   };
 
-  const getPlanIcon = (name) => {
+  const getPlanIcon = (icon, name) => {
+    // If icon is an emoji (single character or emoji), return it
+    if (icon && icon.length <= 4 && !icon.includes('an-')) {
+      return icon;
+    }
+    // If icon is a class name, render as <i> tag
+    if (icon && icon.includes('an-')) {
+      return <i className={icon} style={{ fontSize: '32px', color: 'white' }}></i>;
+    }
+    // Fallback to emoji based on name
     const iconMap = {
       'Basic': '🎯',
       'Premium': '⭐',
@@ -60,35 +70,17 @@ const AdminSubscription = () => {
     return iconMap[name] || '📦';
   };
 
-  // Emoji icons for dropdown
-  const emojiIcons = [
-    { name: 'Target', emoji: '🎯' },
-    { name: 'Star', emoji: '⭐' },
-    { name: 'Diamond', emoji: '💎' },
-    { name: 'Rocket', emoji: '🚀' },
-    { name: 'Package', emoji: '📦' },
-    { name: 'Crown', emoji: '👑' },
-    { name: 'Fire', emoji: '🔥' },
-    { name: 'Lightning', emoji: '⚡' },
-    { name: 'Trophy', emoji: '🏆' },
-    { name: 'Medal', emoji: '🏅' },
-    { name: 'Gift', emoji: '🎁' },
-    { name: 'Heart', emoji: '❤️' },
-    { name: 'Check', emoji: '✅' },
-    { name: 'Money', emoji: '💰' },
-    { name: 'Chart', emoji: '📊' },
-  ];
-
   // Handle create plan.
   const handleCreatePlan = async (values) => {
     try {
+      console.log('Form values:', values);
       const planData = {
         name: values.packageName,
-        icon: values.icon || '/icons/default.svg',
+        icon: values.icon || '📦',
         type: values.packageType || 'monthly',
         price: billingType === 'Monthly' ? values.monthlyPrice : 0,
-        annual_price: billingType === 'Annual' ? values.annualPrice : (billingType === 'Monthly' && values.annualPrice ? values.annualPrice : null),
-        billing_cycle: billingType === 'Monthly' && values.annualPrice ? ['monthly', 'annual'] : billingType === 'Monthly' ? ['monthly'] : ['annual'],
+        annual_price: billingType === 'Annual' ? values.annualPrice : null,
+        billing_cycle: billingType === 'Monthly' ? ['monthly'] : ['annual'],
         stripe_price_id: [],
         course_nos: values.courseNos || 0,
         lectures_nos: values.lecturesNos || 0,
@@ -96,14 +88,32 @@ const AdminSubscription = () => {
         is_active: true
       };
 
-      await adminAPI.createPlan(planData);
-      toast.success('Plan created successfully');
+      console.log('Sending plan data:', planData);
+      const response = await adminAPI.createPlan(planData);
+      console.log('Create response:', response);
+      
+      // Close drawer and reset form first
       setDrawerOpen(false);
       form.resetFields();
-      fetchPlans();
+      setBillingType('Monthly');
+      
+      // Show success toast
+      toast.success('Plan created successfully!', {
+        duration: 3000,
+        position: 'top-right',
+      });
+      
+      // Refresh the plans list
+      await fetchPlans();
     } catch (error) {
       console.error('Error creating plan:', error);
-      toast.error(error.message || 'Failed to create plan');
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create plan';
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -153,7 +163,7 @@ const AdminSubscription = () => {
               <CardHeader className="text-center pt-8 pb-4">
                 {/* Plan Icon */}
                 <div className="w-20 h-20 mx-auto mb-4 bg-black rounded-full flex items-center justify-center text-3xl">
-                  {getPlanIcon(plan.name)}
+                  {getPlanIcon(plan.icon, plan.name)}
                 </div>
 
                 {/* Pricing */}
