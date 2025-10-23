@@ -1,4 +1,4 @@
-import React from 'react';
+// Imports.
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '@/pages/Layout';
 import Dashboard from '@/pages/Dashboard';
@@ -28,7 +28,10 @@ import Portfolio from '@/pages/Portfolio';
 import { Toaster } from 'react-hot-toast';
 import AdminUser from './pages/Admin/AdminUser';
 import AdminCourses from './pages/Admin/AdminCourses';
+import AdminSubscription from './pages/Admin/AdminSubscription';
 
+
+// App.
 export default function App() {
   return (
     <AuthProvider>
@@ -39,32 +42,17 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminProtectedRoute>
-              <AdminLayout />
-            </AdminProtectedRoute>
-          }
-        >
+        <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="profile" element={<AdminProfile />} />
-          {/* Add more admin routes here as needed */}
           <Route path="users" element={<AdminUser />}/>
           <Route path="courses" element={<AdminCourses />} />
-          {/* <Route path="reports" element={<div className="p-8">Reports - Coming Soon</div>} />
-          <Route path="settings" element={<div className="p-8">Settings - Coming Soon</div>} /> */}
+          <Route path="/admin/subscriptions" element={<AdminSubscription />} />
         </Route>
 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
+        {/* User Routes */}
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="homepage" element={<Homepage />} />
           <Route path="dashboard" element={<Dashboard />} />

@@ -1,61 +1,18 @@
 import React from "react";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  Settings,
-  User,
-  LogOut,
-  Menu,
-  ShieldCheck,
-  BarChart3,
-  FileText
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { LayoutDashboard, Users, BookOpen, User, LogOut, ShieldCheck } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { User as UserEntity } from "@/api/entities";
 import { userAPI } from "@/services/api";
-import BrandLogo from "@/components/common/BrandLogo";
+
 
 const adminNavigationItems = [
-  {
-    title: "Dashboard",
-    url: "/admin/dashboard",
-    icon: LayoutDashboard,
-    description: "Overview"
-  },
-  {
-    title: "Users",
-    url: "/admin/users",
-    icon: Users,
-    description: "Manage Users"
-  },
-  {
-    title: "Courses",
-    url: "/admin/courses",
-    icon: BookOpen,
-    description: "All Courses"
-  },
+  { title: "Dashboard",     url: "/admin/dashboard",         icon: LayoutDashboard, description: "Overview"},
+  { title: "Users",         url: "/admin/users",             icon: Users,           description: "Manage Users" },
+  { title: "Courses",       url: "/admin/courses",           icon: BookOpen,        description: "All Courses"},
+  { title: "Subscriptions", url: "/admin/subscriptions",     icon: Users,           description: "Manage Subscriptions" },
   // {
   //   title: "Reports",
   //   url: "/admin/reports",
