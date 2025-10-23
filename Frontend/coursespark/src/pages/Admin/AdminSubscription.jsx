@@ -12,11 +12,15 @@ import { menu } from '@/api/menu.js';
 
 // Frontend.
 const AdminSubscription = () => {
+  // States.
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [editingPlan, setEditingPlan] = useState(null);
   const [billingType, setBillingType] = useState('Monthly');
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
 
   useEffect(() => {
     fetchPlans();
@@ -40,7 +44,6 @@ const AdminSubscription = () => {
   // Handle delete plan.
   const handleDeletePlan = async (planId) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
-    
     try {
       await adminAPI.deletePlan(planId);
       toast.success('Plan deleted successfully');
@@ -52,21 +55,9 @@ const AdminSubscription = () => {
   };
 
   const getPlanIcon = (icon, name) => {
-    // If icon is an emoji (single character or emoji), return it
-    if (icon && icon.length <= 4 && !icon.includes('an-')) {
-      return icon;
-    }
-    // If icon is a class name, render as <i> tag
-    if (icon && icon.includes('an-')) {
-      return <i className={icon} style={{ fontSize: '32px', color: 'white' }}></i>;
-    }
-    // Fallback to emoji based on name
-    const iconMap = {
-      'Basic': '🎯',
-      'Premium': '⭐',
-      'Pro': '💎',
-      'Enterprise': '🚀'
-    };
+    if (icon && icon.length <= 4 && !icon.includes('an-')) {return icon;}
+    if (icon && icon.includes('an-')) {return <i className={icon} style={{ fontSize: '32px', color: 'white' }}></i>;}
+    const iconMap = {'Basic': '🎯','Premium': '⭐','Pro': '💎','Enterprise': '🚀'};
     return iconMap[name] || '📦';
   };
 
@@ -74,36 +65,19 @@ const AdminSubscription = () => {
   const handleCreatePlan = async (values) => {
     try {
       console.log('Form values:', values);
-      const planData = {
-        name: values.packageName,
-        icon: values.icon || '📦',
-        type: values.packageType || 'monthly',
-        price: billingType === 'Monthly' ? values.monthlyPrice : 0,
-        annual_price: billingType === 'Annual' ? values.annualPrice : null,
-        billing_cycle: billingType === 'Monthly' ? ['monthly'] : ['annual'],
-        stripe_price_id: [],
-        course_nos: values.courseNos || 0,
-        lectures_nos: values.lecturesNos || 0,
-        platform_fee: values.platformFee || 0,
-        is_active: true
-      };
+      const planData = { name: values.packageName, icon: values.icon || '📦', type: values.packageType || 'monthly', price: billingType === 'Monthly' ? values.monthlyPrice : 0, annual_price: billingType === 'Annual' ? values.annualPrice : null, billing_cycle: billingType === 'Monthly' ? ['monthly'] : ['annual'], stripe_price_id: [], course_nos: values.courseNos || 0, lectures_nos: values.lecturesNos || 0, platform_fee: values.platformFee || 0, is_active: true};
 
       console.log('Sending plan data:', planData);
       const response = await adminAPI.createPlan(planData);
       console.log('Create response:', response);
       
-      // Close drawer and reset form first
+      // Close drawer and reset form.
       setDrawerOpen(false);
       form.resetFields();
       setBillingType('Monthly');
+      toast.success('Plan created successfully!', {duration: 3000,position: 'top-right'});
       
-      // Show success toast
-      toast.success('Plan created successfully!', {
-        duration: 3000,
-        position: 'top-right',
-      });
-      
-      // Refresh the plans list
+      // Refresh plans list.
       await fetchPlans();
     } catch (error) {
       console.error('Error creating plan:', error);
@@ -124,6 +98,61 @@ const AdminSubscription = () => {
     setBillingType('Monthly');
   };
 
+  // Handle edit plan.
+  const handleEditPlan = (plan) => {
+    setEditingPlan(plan);
+    setEditDrawerOpen(true);
+    
+    // Determine billing type from plan data.
+    const hasBothBilling = plan.billing_cycle && plan.billing_cycle.includes('monthly') && plan.billing_cycle.includes('annual');
+    const hasAnnualOnly = plan.billing_cycle && plan.billing_cycle.includes('annual') && !plan.billing_cycle.includes('monthly');
+    
+    if (hasAnnualOnly) {
+      setBillingType('Annual');
+    } else {
+      setBillingType('Monthly');
+    }
+    
+    // Set form values
+    editForm.setFieldsValue({ packageName: plan.name, icon: plan.icon, monthlyPrice: plan.price, annualPrice: plan.annual_price, courseNos: plan.course_nos, lecturesNos: plan.lectures_nos, platformFee: plan.platform_fee });
+  };
+
+  // Handle update plan.
+  const handleUpdatePlan = async (values) => {
+    try {
+      console.log('Update form values:', values);
+      const planData = { name: values.packageName, icon: values.icon || editingPlan.icon, type: values.packageType || 'monthly', price: billingType === 'Monthly' ? values.monthlyPrice : 0, annual_price: billingType === 'Annual' ? values.annualPrice : null, billing_cycle: billingType === 'Monthly' ? ['monthly'] : ['annual'], stripe_price_id: editingPlan.stripe_price_id || [], course_nos: values.courseNos || 0, lectures_nos: values.lecturesNos || 0, platform_fee: values.platformFee || 0, is_active: true };
+
+      console.log('Updating plan:', editingPlan.id, planData);
+      const response = await adminAPI.updatePlan(editingPlan.id, planData);
+      console.log('Update response:', response);
+      
+      // Close drawer and reset form.
+      setEditDrawerOpen(false);
+      editForm.resetFields();
+      setEditingPlan(null);
+      setBillingType('Monthly');
+      toast.success('Plan updated successfully!', { duration: 3000, position: 'top-right',});
+      
+      // Refresh plans list.
+      await fetchPlans();
+    } catch (error) {
+      console.error('Error updating plan:', error);
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update plan';
+      toast.error(errorMessage, {duration: 3000,position: 'top-right'});
+    }
+  };
+
+  // Handle edit drawer close.
+  const handleEditDrawerClose = () => {
+    setEditDrawerOpen(false);
+    editForm.resetFields();
+    setEditingPlan(null);
+    setBillingType('Monthly');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -135,7 +164,6 @@ const AdminSubscription = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Subscriptions</h1>
@@ -147,26 +175,26 @@ const AdminSubscription = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <Card key={plan.id} className="relative hover:shadow-lg transition-shadow">
-              {/* Header */}
+              {/* Card */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="w-8 h-8"><MoreVertical className="w-8 h-8 text-gray-400" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleEditPlan(plan)}><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
                     <DropdownMenuItem className="text-red-600" onClick={() => handleDeletePlan(plan.id)}><Trash2 className="w-4 h-4 mr-2" />Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
 
               <CardHeader className="text-center pt-8 pb-4">
-                {/* Plan Icon */}
+                {/* Icon */}
                 <div className="w-20 h-20 mx-auto mb-4 bg-black rounded-full flex items-center justify-center text-3xl">
                   {getPlanIcon(plan.icon, plan.name)}
                 </div>
 
-                {/* Pricing */}
+                {/* Price */}
                 <div className="mb-2">
                   <span className="text-lg font-bold">${plan.price}/mo</span>
                   {plan.annual_price && parseFloat(plan.annual_price) > 0 && (
@@ -177,20 +205,13 @@ const AdminSubscription = () => {
                   )}
                 </div>
 
-                {/* Savings Badge or Free Plan Note */}
+                {/* Free Plan Note */}
                 {parseFloat(plan.price) === 0 ? (
-                  <p className="text-sm text-green-600 font-medium">
-                    Free for 1st month, then switch to paid plan
-                  </p>
+                  <p className="text-sm text-green-600 font-medium">Free for 1st month, then switch to paid plan</p>
                 ) : plan.annual_price && parseFloat(plan.annual_price) > 0 && parseFloat(plan.price) > 0 ? (
-                  <p className="text-sm text-green-600 font-medium">
-                    Save ${((plan.price * 12) - plan.annual_price).toFixed(2)} (
-                    {Math.round(((plan.price * 12 - plan.annual_price) / (plan.price * 12)) * 100)}% off) on yearly plan
-                  </p>
+                  <p className="text-sm text-green-600 font-medium">Save ${((plan.price * 12) - plan.annual_price).toFixed(2)} ({Math.round(((plan.price * 12 - plan.annual_price) / (plan.price * 12)) * 100)}% off) on yearly plan</p>
                 ) : (
-                  <p className="text-sm text-transparent font-medium">
-                    &nbsp;
-                  </p>
+                  <p className="text-sm text-transparent font-medium"> &nbsp;</p>
                 )}
                 {/* Plan Name */}
                 <CardTitle className="text-xl mt-3">{plan.name}</CardTitle>
@@ -233,53 +254,87 @@ const AdminSubscription = () => {
       </div>
 
       {/* Drawer for Adding Subscription */}
-      <Drawer
-        title="Add Subscription Package"
-        placement="right"
-        width={400}
-        onClose={handleDrawerClose}
-        open={drawerOpen}
+      <Drawer title="Add Subscription Package" placement="right" width={400} onClose={handleDrawerClose} open={drawerOpen}
         footer={
-          <div className="flex justify-end">
-            <Button 
-              onClick={() => form.submit()} 
-              className="w-full bg-black hover:bg-gray-800 text-white h-12 mb-4 mt-4"
-            >
-              Save
-            </Button>
-          </div>
+        <div className="flex justify-end">
+          <Button onClick={() => form.submit()} className="w-full bg-black hover:bg-gray-800 text-white h-12 mb-4 mt-4">Save</Button>
+        </div>
         }
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleCreatePlan}
-          className="[&_.ant-form-item-label>label]:font-semibold"
-        >
+        <Form form={form} layout="vertical" onFinish={handleCreatePlan} className="[&_.ant-form-item-label>label]:font-semibold">
           {/* Package Name */}
-          <Form.Item
-            label="Package Name"
-            name="packageName"
-            rules={[{ required: true, message: 'Please enter package name' }]}
-          >
+          <Form.Item label="Package Name" name="packageName" rules={[{ required: true, message: 'Please enter package name' }]}>
             <Input placeholder="Enter package Name" className="h-10" />
           </Form.Item>
 
           {/* Select Icon */}
-          <Form.Item
-            label="Select Icon"
-            name="icon"
-            rules={[{ required: true, message: 'Please select an icon' }]}
-          >
-            <Select
-              showSearch
-              placeholder="Select Icon"
-              optionFilterProp="label"
-              className="h-10"
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-            >
+          <Form.Item label="Select Icon" name="icon" rules={[{ required: true, message: 'Please select an icon' }]}>
+            <Select showSearch placeholder="Select Icon" optionFilterProp="label" className="h-10" filterOption={(input, option) =>(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}>
+              {menu.map(item => (
+                <Select.Option key={item.name} value={item.iconClass} label={item.name}>
+                  <div className="flex items-center gap-2">
+                    <i className={item.iconClass} style={{ fontSize: '18px' }}></i>
+                    <span>{item.name}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Package Type */}
+          <div className="mb-6">
+            <p className="text-sm font-medium mb-3">Package type</p>
+            <Segmented options={['Monthly', 'Annual']} value={billingType} onChange={setBillingType} block className="bg-gray-100" />
+          </div>
+
+          {/* Monthly Price */}
+          {billingType === 'Monthly' && (
+            <Form.Item label="Monthly Price" name="monthlyPrice" rules={[{ required: true, message: 'Please enter monthly price' }]}>
+              <InputNumber placeholder="Enter monthly price" className="w-full h-10" min={0} prefix="$" />
+            </Form.Item>
+          )}
+
+          {/* Annual Price */}
+          {billingType === 'Annual' && (
+            <Form.Item label="Annual Price" name="annualPrice" rules={[{ required: true, message: 'Please enter annual price' }]}>
+              <InputNumber placeholder="Enter annual price" className="w-full h-10" min={0} prefix="$" />
+            </Form.Item>
+          )}
+
+          {/* Number of Courses */}
+          <Form.Item label="Number of Courses" name="courseNos"rules={[{ required: true, message: 'Please enter number of courses' }]}>
+            <InputNumber placeholder="Enter number of courses" className="w-full h-10" min={0} />
+          </Form.Item>
+
+          {/* Number of Lectures */}
+          <Form.Item label="Number of Lectures" name="lecturesNos"rules={[{ required: true, message: 'Please enter number of lectures' }]}>
+            <InputNumber placeholder="Enter number of lectures" className="w-full h-10" min={0} />
+          </Form.Item>
+
+          {/* Platform Fee */}
+          <Form.Item label="Platform Fee (%)" name="platformFee">
+            <InputNumber placeholder="Enter platform fee percentage" className="w-full h-10" min={0} max={100} />
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      {/* Drawer */}
+      <Drawer title="Edit Subscription Package" placement="right" width={400} onClose={handleEditDrawerClose} open={editDrawerOpen}
+        footer={
+          <div className="flex justify-end">
+            <Button onClick={() => editForm.submit()} className="w-full bg-black hover:bg-gray-800 text-white h-12 mb-4 mt-4">Update</Button>
+          </div>
+        }
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdatePlan} className="[&_.ant-form-item-label>label]:font-semibold">
+          {/* Package Name */}
+          <Form.Item label="Package Name" name="packageName" rules={[{ required: true, message: 'Please enter package name' }]}>
+            <Input placeholder="Enter package Name" className="h-10" />
+          </Form.Item>
+
+          {/* Select Icon */}
+          <Form.Item label="Select Icon" name="icon" rules={[{ required: true, message: 'Please select an icon' }]}>
+            <Select showSearch placeholder="Select Icon" optionFilterProp="label" className="h-10" filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}>
               {menu.map(item => (
                 <Select.Option key={item.name} value={item.iconClass} label={item.name}>
                   <div className="flex items-center gap-2">
@@ -294,81 +349,36 @@ const AdminSubscription = () => {
           {/* Billing Type Segmented */}
           <div className="mb-6">
             <p className="text-sm font-medium mb-3">Package type</p>
-            <Segmented
-              options={['Monthly', 'Annual']}
-              value={billingType}
-              onChange={setBillingType}
-              block
-              className="bg-gray-100"
-            />
+            <Segmented options={['Monthly', 'Annual']} value={billingType} onChange={setBillingType} block className="bg-gray-100" />
           </div>
 
           {/* Monthly Price */}
           {billingType === 'Monthly' && (
-            <Form.Item
-              label="Monthly Price"
-              name="monthlyPrice"
-              rules={[{ required: true, message: 'Please enter monthly price' }]}
-            >
-              <InputNumber
-                placeholder="Enter monthly price"
-                className="w-full h-10"
-                min={0}
-                prefix="$"
-              />
+            <Form.Item label="Monthly Price" name="monthlyPrice" rules={[{ required: true, message: 'Please enter monthly price' }]}>
+              <InputNumber placeholder="Enter monthly price" className="w-full h-10" min={0} prefix="$" />
             </Form.Item>
           )}
 
           {/* Annual Price */}
           {billingType === 'Annual' && (
-            <Form.Item
-              label="Annual Price"
-              name="annualPrice"
-              rules={[{ required: true, message: 'Please enter annual price' }]}
-            >
-              <InputNumber
-                placeholder="Enter annual price"
-                className="w-full h-10"
-                min={0}
-                prefix="$"
-              />
+            <Form.Item label="Annual Price" name="annualPrice" rules={[{ required: true, message: 'Please enter annual price' }]}>
+              <InputNumber placeholder="Enter annual price" className="w-full h-10" min={0} prefix="$" />
             </Form.Item>
           )}
 
           {/* Number of Courses */}
-          <Form.Item 
-            label="Number of Courses" 
-            name="courseNos"
-            rules={[{ required: true, message: 'Please enter number of courses' }]}
-          >
-            <InputNumber
-              placeholder="Enter number of courses"
-              className="w-full h-10"
-              min={0}
-            />
+          <Form.Item label="Number of Courses" name="courseNos"rules={[{ required: true, message: 'Please enter number of courses' }]}>
+            <InputNumber placeholder="Enter number of courses" className="w-full h-10" min={0} />
           </Form.Item>
 
           {/* Number of Lectures */}
-          <Form.Item 
-            label="Number of Lectures" 
-            name="lecturesNos"
-            rules={[{ required: true, message: 'Please enter number of lectures' }]}
-          >
-            <InputNumber
-              placeholder="Enter number of lectures"
-              className="w-full h-10"
-              min={0}
-            />
+          <Form.Item label="Number of Lectures" name="lecturesNos"rules={[{ required: true, message: 'Please enter number of lectures' }]}>
+            <InputNumber placeholder="Enter number of lectures" className="w-full h-10" min={0} />
           </Form.Item>
 
           {/* Platform Fee */}
           <Form.Item label="Platform Fee (%)" name="platformFee">
-            <InputNumber
-              placeholder="Enter platform fee percentage"
-              className="w-full h-10"
-              min={0}
-              max={100}
-            />
+            <InputNumber placeholder="Enter platform fee percentage" className="w-full h-10" min={0} max={100} />
           </Form.Item>
         </Form>
       </Drawer>
