@@ -106,7 +106,15 @@ export const adminAPI = {
         }
         return api.put(`/courses/${id}`, data);
     },
-    deleteCourse: (id) => api.delete(`/courses/${id}`)
+    deleteCourse: (id) => api.delete(`/courses/${id}`),
+    
+    // Admin Plan management
+    getAllPlans: () => api.get('/admin-plans'),
+    getPlan: (id) => api.get(`/admin-plans/${id}`),
+    createPlan: (data) => api.post('/admin-plans', data),
+    updatePlan: (id, data) => api.put(`/admin-plans/${id}`, data),
+    deletePlan: (id) => api.delete(`/admin-plans/${id}`),
+    calculateFee: (id, coursePrice) => api.post(`/admin-plans/${id}/calculate-fee`, { course_price: coursePrice })
 };
 
 export default api;

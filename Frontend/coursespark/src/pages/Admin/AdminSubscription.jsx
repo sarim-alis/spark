@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Edit, Trash2, Plus, DollarSign, Users, BookOpen, Video} from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import api from '@/services/api';
+import { adminAPI } from '@/services/api';
 import { toast } from 'sonner';
 
 
@@ -22,7 +22,7 @@ const AdminSubscription = () => {
   const fetchPlans = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin-plans');
+      const response = await adminAPI.getAllPlans();
       setPlans(response.data.data || []);
     } catch (error) {
       console.error('Error fetching plans:', error);
@@ -37,7 +37,7 @@ const AdminSubscription = () => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     
     try {
-      await api.delete(`/admin-plans/${planId}`);
+      await adminAPI.deletePlan(planId);
       toast.success('Plan deleted successfully');
       fetchPlans();
     } catch (error) {
@@ -76,16 +76,14 @@ const AdminSubscription = () => {
           <Button className="bg-black hover:bg-gray-800 text-white"><Plus className="w-4 h-4 mr-2" />Create Subscription</Button>
         </div>
 
-        {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <Card key={plan.id} className="relative hover:shadow-lg transition-shadow">
-              {/* Card Header with Actions */}
+              {/* Header */}
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="w-4 h-4" /></Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="w-8 h-8"><MoreVertical className="w-8 h-8 text-gray-400" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
@@ -102,32 +100,38 @@ const AdminSubscription = () => {
 
                 {/* Pricing */}
                 <div className="mb-2">
-                  <span className="text-2xl font-bold">${plan.price}</span>
-                  <span className="text-gray-600">/mo</span>
-                  {plan.annual_price && (
+                  <span className="text-lg font-bold">${plan.price}/mo</span>
+                  {plan.annual_price && parseFloat(plan.annual_price) > 0 && (
                     <>
-                      <span className="mx-2 text-gray-400">or</span>
-                      <span className="text-2xl font-bold">${plan.annual_price}</span>
-                      <span className="text-gray-600">/yr</span>
+                      <span className="mx-2 text-gray-400"> | </span>
+                      <span className="text-lg font-bold">${plan.annual_price}/yr</span>
                     </>
                   )}
                 </div>
 
-                {/* Savings Badge */}
-                {plan.annual_price && plan.annual_price > 0 && (
+                {/* Savings Badge or Free Plan Note */}
+                {parseFloat(plan.price) === 0 ? (
+                  <p className="text-sm text-green-600 font-medium">
+                    Free for 1st month, then switch to paid plan
+                  </p>
+                ) : plan.annual_price && parseFloat(plan.annual_price) > 0 && parseFloat(plan.price) > 0 ? (
                   <p className="text-sm text-green-600 font-medium">
                     Save ${((plan.price * 12) - plan.annual_price).toFixed(2)} (
                     {Math.round(((plan.price * 12 - plan.annual_price) / (plan.price * 12)) * 100)}% off) on yearly plan
                   </p>
+                ) : (
+                  <p className="text-sm text-transparent font-medium">
+                    &nbsp;
+                  </p>
                 )}
-
                 {/* Plan Name */}
                 <CardTitle className="text-xl mt-3">{plan.name}</CardTitle>
               </CardHeader>
 
+              <div className="flex items-center justify-center border-gray-200"><div className="w-1/2 border-t border-gray-200 mb-6"></div></div>
               <CardContent className="space-y-3 pb-6">
                 {/* Features List */}
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-gray-600 flex flex-col items-center">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-indigo-600" />
                     <span>{plan.course_nos} Courses</span>
@@ -140,26 +144,6 @@ const AdminSubscription = () => {
                     <DollarSign className="w-4 h-4 text-indigo-600" />
                     <span>{plan.platform_fee}% Platform Fee</span>
                   </div>
-                  {plan.billing_cycle && plan.billing_cycle.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-indigo-600" />
-                      <span>
-                        {plan.billing_cycle.map(cycle => 
-                          cycle.charAt(0).toUpperCase() + cycle.slice(1)
-                        ).join(', ')} Billing
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Status Badge */}
-                <div className="pt-3 border-t">
-                  <Badge 
-                    variant={plan.is_active ? "default" : "secondary"}
-                    className={plan.is_active ? "bg-green-500" : ""}
-                  >
-                    {plan.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
                 </div>
               </CardContent>
             </Card>

@@ -65,3 +65,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('notes/{note}', [NoteController::class, 'update']); // Update note
     Route::delete('notes/{note}', [NoteController::class, 'destroy']); // Delete note
 });
+
+// Admin Plans Routes
+require __DIR__.'/admin_plan_routes.php';
