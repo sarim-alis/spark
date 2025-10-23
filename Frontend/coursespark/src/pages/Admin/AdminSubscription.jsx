@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Edit, Trash2, Plus, DollarSign, Users, BookOpen, Video} from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Plus, DollarSign, BookOpen, Video} from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { adminAPI } from '@/services/api';
 import toast from 'react-hot-toast';
