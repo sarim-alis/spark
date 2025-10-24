@@ -115,7 +115,7 @@ const AdminStripe = () => {
   // Mask key.
   const maskKey = (key) => {
     if (!key) return '';
-    return '•'.repeat(80);
+    return '•'.repeat(16);
   };
 
   // Handle click outside.
@@ -242,12 +242,12 @@ const AdminStripe = () => {
 
                       <div>
                         <Label className="text-sm font-medium text-gray-700">Public Key</Label>
-                        <Input type="password" value={maskKey(key.stripe_api_key)} readOnly onClick={() => handleEditClick(key)} className="mt-1 cursor-pointer bg-gray-50 font-mono h-10" />
+                        <Input value={maskKey(key.stripe_api_key)} readOnly onClick={() => handleEditClick(key)} className="mt-1 cursor-pointer bg-gray-50 font-mono h-10" />
                       </div>
 
                       <div>
                         <Label className="text-sm font-medium text-gray-700">Secret Key</Label>
-                        <Input type="password" value={maskKey(key.stripe_secret_key)} readOnly onClick={() => handleEditClick(key)} className="mt-1 cursor-pointer bg-gray-50 font-mono h-10" />
+                        <Input value={maskKey(key.stripe_secret_key)} readOnly onClick={() => handleEditClick(key)} className="mt-1 cursor-pointer bg-gray-50 font-mono h-10" />
                       </div>
                     </div>
                   </CardContent>

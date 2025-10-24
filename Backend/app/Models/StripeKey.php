@@ -78,8 +78,7 @@ class StripeKey extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'stripe_secret_key',
-        'stripe_api_key',
+        // Keys are visible but should be masked on frontend
     ];
 
     /**
