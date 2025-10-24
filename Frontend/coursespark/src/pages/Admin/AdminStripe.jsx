@@ -1,6 +1,6 @@
 // Imports.
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,10 +47,7 @@ const AdminStripe = () => {
 
   // Handle create key.
   const handleCreateKey = async () => {
-    if (!formData.title || !formData.stripe_api_key || !formData.stripe_secret_key) {
-      toast.error('Please fill in all fields');
-      return;
-    }
+    if (!formData.title || !formData.stripe_api_key || !formData.stripe_secret_key) {toast.error('Please fill in all fields'); return;}
 
     try {
       await stripeAPI.createKey(formData);
@@ -66,10 +63,7 @@ const AdminStripe = () => {
 
   // Handle update key.
   const handleUpdateKey = async () => {
-    if (!editFormData.title) {
-      toast.error('Title is required');
-      return;
-    }
+    if (!editFormData.title) {toast.error('Title is required'); return;}
 
     try {
       const updateData = { title: editFormData.title };
@@ -105,11 +99,7 @@ const AdminStripe = () => {
   // Handle edit click.
   const handleEditClick = (key) => {
     setEditingKey(key);
-    setEditFormData({
-      title: key.title,
-      stripe_api_key: '',
-      stripe_secret_key: ''
-    });
+    setEditFormData({ title: key.title, stripe_api_key: key.stripe_api_key, stripe_secret_key: key.stripe_secret_key });
     setEditDrawerOpen(true);
   };
 
