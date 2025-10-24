@@ -282,7 +282,7 @@ const AdminStripe = () => {
           </div>
 
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button onClick={handleCreateKey} className="w-full bg-[#a78bfa] hover:!bg-[#3c315e] text-white py-6 text-base">
+            <Button onClick={handleCreateKey} className="w-full admin-btn-primary py-6 text-base">
               <Plus className="h-5 w-5 mr-2" />Add New Stripe Keys
             </Button>
           </motion.div>
@@ -322,7 +322,7 @@ const AdminStripe = () => {
           </div>
 
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button onClick={handleUpdateKey} className="w-full bg-[#a78bfa] hover:!bg-[#3c315e] text-white py-6 text-base">
+            <Button onClick={handleUpdateKey} className="w-full admin-btn-primary py-6 text-base">
               <Edit className="h-5 w-5 mr-2" />
               Update Stripe Keys
             </Button>
