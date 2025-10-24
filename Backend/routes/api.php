@@ -68,3 +68,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Admin Plans Routes
 require __DIR__.'/admin_plan_routes.php';
+
+// Stripe Keys Routes
+require __DIR__.'/stripe_key_routes.php';

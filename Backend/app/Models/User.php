@@ -78,4 +78,20 @@ class User extends Authenticatable
     {
         return $this->role === 'creator';
     }
+
+    /**
+     * Get the Stripe keys for this user (creator).
+     */
+    public function stripeKeys()
+    {
+        return $this->hasMany(StripeKey::class, 'user_id');
+    }
+
+    /**
+     * Get the Stripe keys managed by this admin.
+     */
+    public function adminStripeKeys()
+    {
+        return $this->hasMany(StripeKey::class, 'admin_id');
+    }
 }
