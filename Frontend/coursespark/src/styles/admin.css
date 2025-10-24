@@ -1,0 +1,127 @@
+/* Admin Panel Global Styles */
+
+/* Primary Button Colors */
+:root {
+  --admin-primary-color: #a78bfa;
+  --admin-primary-hover: #3c315e;
+  --admin-secondary-color: #f59e0b;
+  --admin-secondary-hover: #d97706;
+}
+
+/* Admin Primary Button */
+.admin-btn-primary {
+  background-color: var(--admin-primary-color);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.admin-btn-primary:hover {
+  background-color: var(--admin-primary-hover) !important;
+}
+
+/* Admin Secondary Button */
+.admin-btn-secondary {
+  background-color: var(--admin-secondary-color);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.admin-btn-secondary:hover {
+  background-color: var(--admin-secondary-hover) !important;
+}
+
+/* Admin Help Icon */
+.admin-help-icon {
+  background-color: var(--admin-secondary-color);
+  transition: all 0.3s ease;
+}
+
+.admin-help-icon:hover {
+  background-color: var(--admin-secondary-hover) !important;
+}
+
+/* Admin Popup Styles */
+.admin-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.admin-popup-content {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 42rem;
+  width: 100%;
+  margin: 1rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.admin-popup-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-popup-body {
+  padding: 1.5rem;
+}
+
+.admin-close-button {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+.admin-close-button:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-step-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.admin-step-data {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.admin-step-contents {
+  margin-top: 0.5rem;
+  color: #4b5563;
+}
+
+/* Admin Card Styles */
+.admin-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Admin Input Styles */
+.admin-input-readonly {
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+.admin-input-readonly:hover {
+  background-color: #f3f4f6;
+}
