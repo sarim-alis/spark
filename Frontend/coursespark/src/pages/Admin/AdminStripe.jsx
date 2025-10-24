@@ -23,7 +23,6 @@ const AdminStripe = () => {
   const [showPublicKey, setShowPublicKey] = useState(false);
   const [showSecretKey, setShowSecretKey] = useState(false);
   const [showHelpPopup, setShowHelpPopup] = useState(false);
-  
   const [formData, setFormData] = useState({ title: '', stripe_api_key: '', stripe_secret_key: ''});
   const [editFormData, setEditFormData] = useState({ title: '', stripe_api_key: '', stripe_secret_key: ''});
 
@@ -142,14 +141,14 @@ const AdminStripe = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Stripe</h1>
-        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setShowHelpPopup(true)}>
-          <HelpCircle className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setShowHelpPopup(true)}>
+          <HelpCircle className="h-5 w-5" />
         </Button>
       </div>
 
       <div className="border-b border-gray-200 mb-6"></div>
 
-      {/* Help Popup Modal */}
+      {/* Popup */}
       <AnimatePresence>
         {showHelpPopup && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="admin-popup-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={handleClickOutside}>
@@ -199,7 +198,7 @@ const AdminStripe = () => {
         )}
       </AnimatePresence>
 
-      {/* Keys List */}
+      {/* Keys */}
       <AnimatePresence mode="wait">
         {keys.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} key="empty">
@@ -219,8 +218,8 @@ const AdminStripe = () => {
                     <div className="absolute top-4 right-4">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-12 w-12">
+                            <MoreVertical className="h-6 w-6" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

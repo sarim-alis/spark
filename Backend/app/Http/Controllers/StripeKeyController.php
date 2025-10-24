@@ -111,7 +111,6 @@ class StripeKeyController extends Controller
         }
 
         $key = StripeKey::create([
-            'id' => Str::uuid(),
             'stripe_secret_key' => $request->stripe_secret_key,
             'stripe_api_key' => $request->stripe_api_key,
             'title' => $request->title,
