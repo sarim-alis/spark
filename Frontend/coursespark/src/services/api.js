@@ -117,4 +117,14 @@ export const adminAPI = {
     calculateFee: (id, coursePrice) => api.post(`/admin-plans/${id}/calculate-fee`, { course_price: coursePrice })
 };
 
+export const stripeAPI = {
+    // Stripe Keys management
+    getAllKeys: () => api.get('/stripe-keys'),
+    getKey: (id) => api.get(`/stripe-keys/${id}`),
+    createKey: (data) => api.post('/stripe-keys', data),
+    updateKey: (id, data) => api.put(`/stripe-keys/${id}`, data),
+    deleteKey: (id) => api.delete(`/stripe-keys/${id}`),
+    getKeyHistory: (id) => api.get(`/stripe-keys/${id}/history`)
+};
+
 export default api;

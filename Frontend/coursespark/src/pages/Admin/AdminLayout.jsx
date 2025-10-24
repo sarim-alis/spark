@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, BookOpen, User, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, User, LogOut, ShieldCheck, CreditCard } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const adminNavigationItems = [
   { title: "Users",         url: "/admin/users",             icon: Users,           description: "Manage Users" },
   { title: "Courses",       url: "/admin/courses",           icon: BookOpen,        description: "All Courses"},
   { title: "Subscriptions", url: "/admin/subscriptions",     icon: Users,           description: "Manage Subscriptions" },
+  { title: "Stripe",        url: "/admin/stripe",            icon: CreditCard,      description: "Stripe Keys" },
   // {
   //   title: "Reports",
   //   url: "/admin/reports",

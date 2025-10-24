@@ -29,6 +29,7 @@ import { Toaster } from 'react-hot-toast';
 import AdminUser from './pages/Admin/AdminUser';
 import AdminCourses from './pages/Admin/AdminCourses';
 import AdminSubscription from './pages/Admin/AdminSubscription';
+import AdminStripe from './pages/Admin/AdminStripe';
 
 
 // App.
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="users" element={<AdminUser />}/>
           <Route path="courses" element={<AdminCourses />} />
           <Route path="/admin/subscriptions" element={<AdminSubscription />} />
+          <Route path="stripe" element={<AdminStripe />} />
         </Route>
 
         {/* User Routes */}
