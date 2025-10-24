@@ -309,7 +309,7 @@ const AdminStripe = () => {
             </div>
 
             <div>
-              <Label htmlFor="edit_public_key" className="text-sm font-medium">Public Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span><span className="text-red-500"> *</span></Label>
+              <Label htmlFor="edit_public_key" className="text-sm font-medium">Public Key<span className="text-red-500"> *</span></Label>
               <div className="relative mt-1">
                 <Input id="edit_public_key" type={showPublicKey ? 'text' : 'password'} placeholder="pk_test_..." value={editFormData.stripe_api_key} onChange={(e) => setEditFormData({ ...editFormData, stripe_api_key: e.target.value })} className="pr-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowPublicKey(!showPublicKey)}>
@@ -319,7 +319,7 @@ const AdminStripe = () => {
             </div>
 
             <div>
-              <Label htmlFor="edit_secret_key" className="text-sm font-medium">Secret Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span><span className="text-red-500"> *</span></Label>
+              <Label htmlFor="edit_secret_key" className="text-sm font-medium">Secret Key<span className="text-red-500"> *</span></Label>
               <div className="relative mt-1">
                 <Input id="edit_secret_key" type={showSecretKey ? 'text' : 'password'} placeholder="sk_test_..." value={editFormData.stripe_secret_key} onChange={(e) => setEditFormData({ ...editFormData, stripe_secret_key: e.target.value })} className="pr-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowSecretKey(!showSecretKey)}>
