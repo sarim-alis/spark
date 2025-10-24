@@ -51,7 +51,8 @@ class StripeKeyController extends Controller
 
         // Check authorization
         if ($user->isAdmin()) {
-            if ($key->admin_id !== $user->id && !($key->role === 'admin' && $key->user_id === $user->id)) {
+            // Admin can view their own keys or keys they manage
+            if ($key->admin_id !== $user->id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized access.',
@@ -93,14 +94,14 @@ class StripeKeyController extends Controller
 
         if ($user->isAdmin()) {
             // If admin is creating keys for a user
-            if ($request->has('user_id')) {
+            if ($request->has('user_id') && $request->user_id) {
                 $userId = $request->user_id;
                 $adminId = $user->id;
                 $role = 'creator'; // Keys for a creator managed by admin
             } else {
-                // Admin's own keys
-                $userId = $user->id;
-                $adminId = null;
+                // Admin's own keys for receiving payments
+                $userId = null;
+                $adminId = $user->id;
                 $role = 'admin';
             }
         } else {
@@ -141,7 +142,8 @@ class StripeKeyController extends Controller
 
         // Check authorization
         if ($user->isAdmin()) {
-            if ($key->admin_id !== $user->id && !($key->role === 'admin' && $key->user_id === $user->id)) {
+            // Admin can update their own keys or keys they manage
+            if ($key->admin_id !== $user->id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized access.',

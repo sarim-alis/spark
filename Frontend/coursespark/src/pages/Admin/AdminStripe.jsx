@@ -49,6 +49,10 @@ const AdminStripe = () => {
   const handleCreateKey = async () => {
     if (!formData.title || !formData.stripe_api_key || !formData.stripe_secret_key) {toast.error('Please fill in all fields'); return;}
 
+    // Validate key formats.
+    if (!formData.stripe_api_key.startsWith('pk_')) {toast.error('Public Key must start with "pk_"');return;}
+    if (!formData.stripe_secret_key.startsWith('sk_')) {toast.error('Secret Key must start with "sk_"');return;}
+
     try {
       await stripeAPI.createKey(formData);
       toast.success('Stripe keys created successfully');
@@ -64,6 +68,10 @@ const AdminStripe = () => {
   // Handle update key.
   const handleUpdateKey = async () => {
     if (!editFormData.title) {toast.error('Title is required'); return;}
+
+    // Validate key formats.
+    if (editFormData.stripe_api_key && !editFormData.stripe_api_key.startsWith('pk_')) {toast.error('Public Key must start with "pk_"');return;}
+    if (editFormData.stripe_secret_key && !editFormData.stripe_secret_key.startsWith('sk_')) {toast.error('Secret Key must start with "sk_"');return;}
 
     try {
       const updateData = { title: editFormData.title };
