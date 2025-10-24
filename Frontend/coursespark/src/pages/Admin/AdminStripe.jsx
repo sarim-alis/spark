@@ -227,11 +227,7 @@ const AdminStripe = () => {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteKey(key.id)}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                          <DropdownMenuItem onClick={() => handleDeleteKey(key.id)} className="text-red-600 focus:text-red-600"><Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -262,23 +258,9 @@ const AdminStripe = () => {
         )}
       </AnimatePresence>
 
-      {/* Create Drawer */}
-      <Drawer
-        title={
-          <div className="flex items-center justify-between pr-6">
-            <span className="text-lg font-semibold">Add/Edit</span>
-          </div>
-        }
-        placement="right"
-        onClose={() => {
-          setDrawerOpen(false);
-          setFormData({ title: '', stripe_api_key: '', stripe_secret_key: '' });
-        }}
-        open={drawerOpen}
-        width={480}
-      >
+      {/* Create */}
+      <Drawer title={<div className="flex items-center justify-between pr-6"><span className="text-lg font-semibold">Add/Edit</span></div>} placement="right" onClose={() => { setDrawerOpen(false); setFormData({ title: '', stripe_api_key: '', stripe_secret_key: '' });}} open={drawerOpen} width={480}>
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-          {/* Collapsible Header */}
           <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-black text-white p-4 rounded-lg">
             <div className="flex items-center justify-between cursor-pointer">
               <span className="font-medium">{formData.title || 'My Keys'}</span>
@@ -288,16 +270,12 @@ const AdminStripe = () => {
           {/* Form Fields */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title" className="text-sm font-medium">
-                Title <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="title" className="text-sm font-medium">Title <span className="text-red-500">*</span></Label>
               <Input id="title" placeholder="My Keys" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="mt-1 h-10" />
             </div>
 
             <div>
-              <Label htmlFor="public_key" className="text-sm font-medium">
-                Public Key <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="public_key" className="text-sm font-medium">Public Key <span className="text-red-500">*</span></Label>
               <div className="relative mt-1">
                 <Input id="public_key" type={showPublicKey ? 'text' : 'password'} placeholder="pk_test_..." value={formData.stripe_api_key} onChange={(e) => setFormData({ ...formData, stripe_api_key: e.target.value })} className="pr-10 h-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowPublicKey(!showPublicKey)} >
@@ -307,9 +285,7 @@ const AdminStripe = () => {
             </div>
 
             <div>
-              <Label htmlFor="secret_key" className="text-sm font-medium">
-                Secret Key <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="secret_key" className="text-sm font-medium">Secret Key <span className="text-red-500">*</span></Label>
               <div className="relative mt-1">
                 <Input id="secret_key" type={showSecretKey ? 'text' : 'password'} placeholder="sk_test_..." value={formData.stripe_secret_key} onChange={(e) => setFormData({ ...formData, stripe_secret_key: e.target.value })} className="pr-10 h-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowSecretKey(!showSecretKey)}>
@@ -319,7 +295,6 @@ const AdminStripe = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button onClick={handleCreateKey} className="w-full bg-black hover:bg-gray-800 text-white py-6 text-base">
               <Plus className="h-5 w-5 mr-2" />Add New Stripe Keys
@@ -328,24 +303,9 @@ const AdminStripe = () => {
         </motion.div>
       </Drawer>
 
-      {/* Edit Drawer */}
-      <Drawer
-        title={
-          <div className="flex items-center justify-between pr-6">
-            <span className="text-lg font-semibold">Edit Stripe Keys</span>
-          </div>
-        }
-        placement="right"
-        onClose={() => {
-          setEditDrawerOpen(false);
-          setEditingKey(null);
-          setEditFormData({ title: '', stripe_api_key: '', stripe_secret_key: '' });
-        }}
-        open={editDrawerOpen}
-        width={480}
-      >
+      {/* Edit */}
+      <Drawer title={<div className="flex items-center justify-between pr-6"><span className="text-lg font-semibold">Edit Stripe Keys</span></div>} placement="right" onClose={() => {setEditDrawerOpen(false);setEditingKey(null);setEditFormData({ title: '', stripe_api_key: '', stripe_secret_key: '' });}} open={editDrawerOpen} width={480}>
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-          {/* Collapsible Header */}
           <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-black text-white p-4 rounded-lg">
             <div className="flex items-center justify-between cursor-pointer">
               <span className="font-medium">{editFormData.title || 'My Keys'}</span>
@@ -355,16 +315,12 @@ const AdminStripe = () => {
           {/* Form Fields */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit_title" className="text-sm font-medium">
-                Title <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="edit_title" className="text-sm font-medium">Title <span className="text-red-500">*</span></Label>
               <Input id="edit_title" placeholder="My Keys" value={editFormData.title} onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })} className="mt-1 h-10" />
             </div>
 
             <div>
-              <Label htmlFor="edit_public_key" className="text-sm font-medium">
-                Public Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>
-              </Label>
+              <Label htmlFor="edit_public_key" className="text-sm font-medium">Public Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span></Label>
               <div className="relative mt-1">
                 <Input id="edit_public_key" type={showPublicKey ? 'text' : 'password'} placeholder="pk_test_..." value={editFormData.stripe_api_key} onChange={(e) => setEditFormData({ ...editFormData, stripe_api_key: e.target.value })} className="pr-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowPublicKey(!showPublicKey)}>
@@ -374,9 +330,7 @@ const AdminStripe = () => {
             </div>
 
             <div>
-              <Label htmlFor="edit_secret_key" className="text-sm font-medium">
-                Secret Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>
-              </Label>
+              <Label htmlFor="edit_secret_key" className="text-sm font-medium">Secret Key <span className="text-gray-500 text-xs">(Leave empty to keep current)</span></Label>
               <div className="relative mt-1">
                 <Input id="edit_secret_key" type={showSecretKey ? 'text' : 'password'} placeholder="sk_test_..." value={editFormData.stripe_secret_key} onChange={(e) => setEditFormData({ ...editFormData, stripe_secret_key: e.target.value })} className="pr-10" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10" onClick={() => setShowSecretKey(!showSecretKey)}>
@@ -386,7 +340,6 @@ const AdminStripe = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button onClick={handleUpdateKey} className="w-full bg-black hover:bg-gray-800 text-white py-6 text-base">
               <Edit className="h-5 w-5 mr-2" />
