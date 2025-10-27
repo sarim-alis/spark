@@ -179,7 +179,20 @@ export const Course = {
   },
   update: async (id, updates) => {
     try {
-      const response = await courseAPI.update(id, updates);
+      // Prepare data for backend - convert lessons array to JSON string
+      const dataToSend = { ...updates };
+      
+      // Convert lessons array to JSON string if it exists
+      if (dataToSend.lessons && Array.isArray(dataToSend.lessons)) {
+        dataToSend.lessons = JSON.stringify(dataToSend.lessons);
+      }
+      
+      // Remove thumbnail_url if it's not a File (backend expects file upload or nothing)
+      if (dataToSend.thumbnail_url && typeof dataToSend.thumbnail_url === 'string') {
+        delete dataToSend.thumbnail_url;
+      }
+      
+      const response = await courseAPI.update(id, dataToSend);
       return response.data.data;
     } catch (error) {
       console.error('Failed to update course:', error);

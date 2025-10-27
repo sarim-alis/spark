@@ -13,28 +13,20 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, Trash2, Plus, Save, ArrowLeft, BrainCircuit } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import QuizEditor from "../components/course-editor/QuizEditor";
+import toast from 'react-hot-toast';
 
 
 // Frontend.
 export default function CourseEditor() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id: routeId } = useParams();
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [courseId, setCourseId] = useState(null);
   const [activeQuizEditor, setActiveQuizEditor] = useState(null);
 
-  // Effect to extract course ID from URL params or search parameters.
-  useEffect(() => {
-    const { id: routeId } = useParams();
-    if (routeId) {
-      setCourseId(routeId);
-    } else {
-      const params = new URLSearchParams(location.search);
-      const id = params.get('id');
-      setCourseId(id);
-    }
-  }, [location.search]); // Re-run if URL search parameters change.
+  // Get course ID from URL params or search parameters.
+  const courseId = routeId || new URLSearchParams(location.search).get('id');
 
   // Fetch course.
   useEffect(() => {
@@ -43,6 +35,22 @@ export default function CourseEditor() {
         try {
           setIsLoading(true); // Start loading
           const courseData = await Course.get(courseId);
+          
+          // Parse lessons if it's a JSON string
+          if (courseData && typeof courseData.lessons === 'string') {
+            try {
+              courseData.lessons = JSON.parse(courseData.lessons);
+            } catch (e) {
+              console.error('Failed to parse lessons:', e);
+              courseData.lessons = [];
+            }
+          }
+          
+          // Ensure lessons is an array
+          if (courseData && !Array.isArray(courseData.lessons)) {
+            courseData.lessons = [];
+          }
+          
           setCourse(courseData);
         } catch (error) {
           console.error("Failed to fetch course:", error);
@@ -88,9 +96,14 @@ export default function CourseEditor() {
   
   const handleSaveCourse = async () => {
     if (!course) return; // Prevent saving if course object is null
-    await Course.update(course.id, course);
-    alert("Course saved successfully!");
-    navigate(createPageUrl('MyCourses'));
+    
+    try {
+      await Course.update(course.id, course);
+      toast.success("Course saved successfully!");
+      navigate(createPageUrl('MyCourses'));
+    } catch (error) {
+      toast.error(error.message || "Failed to save course");
+    }
   };
 
   const handleQuizChange = (lessonIndex, updatedQuiz) => {
