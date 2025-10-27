@@ -1,6 +1,6 @@
 // Imports.
 import { useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Course } from '@/api/entities';
 import { Enrollment } from '@/api/entities';
 import { User } from '@/api/entities';
