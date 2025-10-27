@@ -22,11 +22,31 @@ export default function Login() {
     authAPI.login(values)
       .then(({ data }) => {
         console.log('Login response:', data);
-        if (data.access_token) {localStorage.setItem('api_token', data.access_token);message.success('Login successful');login({ ...data.user, token: data.access_token });navigate('/');} 
-        else {message.error('Invalid server response');}
+        if (data.access_token) {
+          // Check if user is admin - prevent admin from logging in to user portal
+          if (data.user.role === 'admin') {
+            message.error('Access denied. Please use the admin login page.');
+            setLoading(false);
+            return;
+          }
+          
+          localStorage.setItem('api_token', data.access_token);
+          message.success('Login successful');
+          login({ ...data.user, token: data.access_token });
+          navigate('/');
+        } 
+        else {
+          message.error('Invalid server response');
+        }
       })
-      .catch(error => {console.error('Login error:', error);const errorMessage = error.message || (error.response?.data?.message) || 'Failed to login';message.error(errorMessage);})
-      .finally(() => {setLoading(false);});
+      .catch(error => {
+        console.error('Login error:', error);
+        const errorMessage = error.message || (error.response?.data?.message) || 'Failed to login';
+        message.error(errorMessage);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
