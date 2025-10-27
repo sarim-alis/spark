@@ -100,11 +100,11 @@ export default function CourseViewOnly() {
         <Card className="mb-8 border-0 shadow-lg overflow-hidden">
           {/* Thumbnail */}
           {course.thumbnail_url && (
-            <div className="relative h-64 md:h-96 overflow-hidden">
+            <div className="flex justify-center items-center bg-slate-100 p-4">
               <img
                 src={course.thumbnail_url}
                 alt={course.title}
-                className="w-full h-full object-cover"
+                className="h-32 md:h-40 object-cover rounded-lg"
               />
             </div>
           )}

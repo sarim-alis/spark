@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+// Imports.
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
 import { Course } from '@/api/entities';
 import { Enrollment } from '@/api/entities';
@@ -12,20 +12,22 @@ import LessonSidebar from '../components/course-viewer/LessonSidebar';
 import LessonContent from '../components/course-viewer/LessonContent';
 import CourseCompletion from '../components/course-viewer/CourseCompletion';
 
+
+// Frontend.
 export default function CourseViewer() {
+  // States.
   const location = useLocation();
   const navigate = useNavigate();
-
   const [course, setCourse] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [isQuizMode, setIsQuizMode] = useState(false);
-
   const { id: routeId } = useParams();
   const courseId = routeId || new URLSearchParams(location.search).get('id');
 
+  // Load data.
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -34,17 +36,17 @@ export default function CourseViewer() {
 
       if (!courseData) {
         console.error("Course not found:", courseId);
-        navigate(createPageUrl("MyCourses")); // Course doesn't exist, navigate away
+        navigate(createPageUrl("MyCourses")); // Course doesn't exist, navigate away.
         return;
       }
 
-      setCourse(courseData); // Always set course data if found
+      setCourse(courseData); // Always set course data if found.
 
       const enrollments = await Enrollment.filter({ student_email: user.email, course_id: courseId });
       
       if (enrollments.length === 0) {
         setEnrollment(null); // Course exists, but user not enrolled. Set enrollment to null to trigger purchase UI.
-        setActiveLesson(null); // No active lesson if not enrolled
+        setActiveLesson(null); // No active lesson if not enrolled.
       } else {
         setEnrollment(enrollments[0]);
 
@@ -59,7 +61,7 @@ export default function CourseViewer() {
 
     } catch (error) {
       console.error("Error loading course viewer:", error);
-      navigate(createPageUrl("MyCourses")); // Catch-all for other errors
+      navigate(createPageUrl("MyCourses"));
     } finally {
       setIsLoading(false);
     }
@@ -71,22 +73,17 @@ export default function CourseViewer() {
     }
   }, [courseId, loadData]);
 
+  // Handle lesson select.
   const handleLessonSelect = (lesson) => {
     setActiveLesson(lesson);
   };
 
+  // Handle quiz complete.
   const handleQuizComplete = async (score, passed) => {
     const lessonOrder = activeLesson.order;
     let newProgress = [...(enrollment.progress || [])];
     const progressIndex = newProgress.findIndex(p => p.lesson_order === lessonOrder);
-
-    const progressUpdate = {
-      lesson_order: lessonOrder,
-      completed: passed,
-      completed_date: new Date().toISOString(),
-      quiz_score: score,
-      quiz_passed: passed,
-    };
+    const progressUpdate = { lesson_order: lessonOrder, completed: passed, completed_date: new Date().toISOString(), quiz_score: score, quiz_passed: passed,};
 
     if (progressIndex > -1) {
       newProgress[progressIndex] = progressUpdate;
@@ -98,6 +95,7 @@ export default function CourseViewer() {
     const totalLessons = course.lessons.length;
     const completionPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
+    // Update enrollment.
     const updatedEnrollment = await Enrollment.update(enrollment.id, {
       progress: newProgress,
       completion_percentage: completionPercentage,
@@ -109,7 +107,7 @@ export default function CourseViewer() {
       if (nextLesson) {
         setActiveLesson(nextLesson);
       } else {
-        // All lessons completed, fetch recommendations
+        // All lessons completed, fetch recommendations.
         const allCourses = await Course.filter({ is_published: true });
         const recommendations = allCourses
           .filter(c => c.id !== course.id && c.category === course.category)
@@ -131,12 +129,12 @@ export default function CourseViewer() {
     );
   }
 
-  // If course data itself wasn't loaded (e.g., bad ID, server error)
+  // If course data itself wasn't loaded (e.g., bad ID, server error).
   if (!course) {
-    return <div className="text-center p-8">Course not found or an error occurred.</div>;
+    return <div className="text-center p-8">Course not found.</div>;
   }
 
-  // If course exists but user is not enrolled, show purchase option
+  // If course exists but user is not enrolled, show purchase option.
   if (course && !enrollment) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -185,6 +183,7 @@ export default function CourseViewer() {
     );
   }
   
+  // Is lesson locked.
   const isLessonLocked = (lesson) => {
     if (lesson.order === 1) return false;
     const prevLesson = course.lessons.find(l => l.order === lesson.order - 1);
@@ -200,25 +199,14 @@ export default function CourseViewer() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
       <div className="flex h-[calc(100vh-4rem)] bg-white">
         <div className="w-full md:w-1/4 h-full overflow-y-auto border-r bg-slate-50">
-          <LessonSidebar
-            course={course}
-            enrollment={enrollment}
-            activeLesson={activeLesson}
-            onLessonClick={handleLessonSelect}
-            isLessonLocked={isLessonLocked}
-          />
+          <LessonSidebar course={course} enrollment={enrollment} activeLesson={activeLesson} onLessonClick={handleLessonSelect} isLessonLocked={isLessonLocked} />
         </div>
 
         <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8">
           {isCourseCompleted ? (
             <CourseCompletion course={course} enrollment={enrollment} recommendedCourses={recommendedCourses} />
           ) : activeLesson ? (
-            <LessonContent
-              lesson={activeLesson}
-              onQuizComplete={handleQuizComplete}
-              enrollment={enrollment}
-              onQuizModeChange={setIsQuizMode}
-            />
+            <LessonContent lesson={activeLesson} onQuizComplete={handleQuizComplete} enrollment={enrollment} onQuizModeChange={setIsQuizMode} />
           ) : (
             <div className="text-center">
               <h2 className="text-xl font-semibold">Select a lesson to get started.</h2>
