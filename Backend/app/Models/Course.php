@@ -31,6 +31,7 @@ class Course extends Model
         'category',
         'price',
         'thumbnail_url',
+        'external_url',
         'created_by',
         'is_published',
         'total_students',

@@ -1,6 +1,8 @@
 // Pure Frontend Storage - No Backend Required
 // Uses localStorage for data persistence
 
+import { courseAPI } from '../services/courseApi.js';
+
 const STORAGE_KEYS = {
   USER: 'coursespark_user',
   COURSES: 'coursespark_courses',
@@ -146,56 +148,70 @@ export const User = {
   },
 };
 
-// Course API
+// Course API - Using Backend API
 export const Course = {
   list: async () => {
-    return storage.get(STORAGE_KEYS.COURSES) || [];
+    try {
+      const response = await courseAPI.list();
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+      return [];
+    }
   },
   get: async (id) => {
-    const courses = storage.get(STORAGE_KEYS.COURSES) || [];
-    return courses.find(c => c.id === id);
+    try {
+      const response = await courseAPI.get(id);
+      return response.data.data || null;
+    } catch (error) {
+      console.error('Failed to fetch course:', error);
+      return null;
+    }
   },
   create: async (courseData) => {
-    const courses = storage.get(STORAGE_KEYS.COURSES) || [];
-    const newCourse = {
-      id: generateId(),
-      ...courseData,
-      instructor: 'user_1',
-      created_at: new Date().toISOString(),
-      rating: 0,
-      students: 0,
-      status: 'draft',
-    };
-    courses.push(newCourse);
-    storage.set(STORAGE_KEYS.COURSES, courses);
-    return newCourse;
+    try {
+      const response = await courseAPI.create(courseData);
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to create course:', error);
+      throw error;
+    }
   },
   update: async (id, updates) => {
-    const courses = storage.get(STORAGE_KEYS.COURSES) || [];
-    const index = courses.findIndex(c => c.id === id);
-    if (index !== -1) {
-      courses[index] = { ...courses[index], ...updates };
-      storage.set(STORAGE_KEYS.COURSES, courses);
-      return courses[index];
+    try {
+      const response = await courseAPI.update(id, updates);
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to update course:', error);
+      throw error;
     }
-    return null;
   },
   delete: async (id) => {
-    const courses = storage.get(STORAGE_KEYS.COURSES) || [];
-    const filtered = courses.filter(c => c.id !== id);
-    storage.set(STORAGE_KEYS.COURSES, filtered);
-    return true;
+    try {
+      await courseAPI.delete(id);
+      return true;
+    } catch (error) {
+      console.error('Failed to delete course:', error);
+      throw error;
+    }
   },
   filter: async (criteria) => {
-    const courses = storage.get(STORAGE_KEYS.COURSES) || [];
-    if (!criteria) return courses;
-    
-    return courses.filter(course => {
-      for (const [key, value] of Object.entries(criteria)) {
-        if (course[key] !== value) return false;
-      }
-      return true;
-    });
+    try {
+      const response = await courseAPI.list(criteria);
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Failed to filter courses:', error);
+      return [];
+    }
+  },
+  togglePublish: async (id) => {
+    try {
+      const response = await courseAPI.togglePublish(id);
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to toggle publish:', error);
+      throw error;
+    }
   },
 };
 

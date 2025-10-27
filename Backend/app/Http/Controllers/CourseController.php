@@ -96,6 +96,7 @@ class CourseController extends Controller
             'category' => 'nullable|string|max:255',
             'price' => 'nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+            'external_url' => 'nullable|url|max:2048',
             'is_published' => 'nullable|boolean',
             'total_students' => 'nullable|integer|min:0',
             'total_sales' => 'nullable|numeric|min:0',
@@ -182,6 +183,7 @@ class CourseController extends Controller
             'category' => 'nullable|string|max:255',
             'price' => 'nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'external_url' => 'nullable|url|max:2048',
             'is_published' => 'nullable|boolean',
             'total_students' => 'nullable|integer|min:0',
             'total_sales' => 'nullable|numeric|min:0',

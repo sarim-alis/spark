@@ -42,7 +42,7 @@ export default function MyCourseCard({ course, onStatusChange, onDelete }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top">
             <DropdownMenuItem asChild>
-              <Link to={`/courseeditor/${course.id}`} className="flex items-center gap-2 w-full cursor-pointer text-xs md:text-sm">
+              <Link to={`/courseviewonly/${course.id}`} className="flex items-center gap-2 w-full cursor-pointer text-xs md:text-sm">
                 <Monitor className="w-3 h-3 md:w-4 md:h-4" /> View
               </Link>
             </DropdownMenuItem>

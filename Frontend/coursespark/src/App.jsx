@@ -7,6 +7,7 @@ import CourseCreator from '@/pages/CourseCreator';
 import MyCourses from '@/pages/MyCourses';
 import CourseEditor from '@/pages/CourseEditor';
 import CourseViewer from '@/pages/CourseViewer';
+import CourseViewOnly from '@/pages/CourseViewOnly';
 import Storefront from '@/pages/Storefront';
 import AITutor from '@/pages/AITutor';
 import AITools from '@/pages/AITools';
@@ -62,6 +63,7 @@ export default function App() {
           <Route path="mycourses" element={<MyCourses />} />
           <Route path="courseeditor/:id" element={<CourseEditor />} />
           <Route path="courseviewer/:id" element={<CourseViewer />} />
+          <Route path="courseviewonly/:id" element={<CourseViewOnly />} />
           <Route path="storefront" element={<Storefront />} />
           <Route path="aitutor" element={<AITutor />} />
           <Route path="aitools" element={<AITools />} />
