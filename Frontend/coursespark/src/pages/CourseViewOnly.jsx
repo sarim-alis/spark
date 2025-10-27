@@ -145,47 +145,43 @@ export default function CourseViewOnly() {
                 If provided, the "Buy Now" button will redirect to this external URL instead of using the built-in payment system.
               </p>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Lessons Card */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Lessons</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {course.lessons && course.lessons.length > 0 ? (
-              course.lessons
-                .sort((a, b) => (a.order || 0) - (b.order || 0))
-                .map((lesson, index) => (
-                  <div key={index} className="border rounded-lg p-4 bg-white">
-                    {/* Lesson Header */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2 flex-1">
-                        <span className="text-slate-400">☰</span>
-                        <input type="text" value={lesson.title} readOnly className="flex-1 px-3 py-2 border rounded-lg bg-slate-50 text-slate-900 cursor-default font-medium" />
+            {/* Lessons Section */}
+            <div className="pt-6 border-t">
+              <h3 className="text-lg font-semibold mb-4">Lessons</h3>
+              <div className="space-y-4">
+                {course.lessons && course.lessons.length > 0 ? (
+                  course.lessons
+                    .sort((a, b) => (a.order || 0) - (b.order || 0))
+                    .map((lesson, index) => (
+                      <div key={index} className="border rounded-lg p-4 bg-white">
+                        {/* Lesson Header */}
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex items-center gap-2 flex-1">
+                            <span className="text-slate-400">☰</span>
+                            <input type="text" value={lesson.title} readOnly className="flex-1 px-3 py-2 border rounded-lg bg-slate-50 text-slate-900 cursor-default font-medium" />
+                          </div>
+                          <input type="number" value={lesson.duration_minutes || ''} readOnly placeholder="Duration" className="w-20 px-3 py-2 border rounded-lg bg-slate-50 text-slate-900 text-center cursor-default" />
+                          {lesson.quiz && (
+                            <span className="px-3 py-2 text-sm text-slate-600 bg-slate-100 rounded-lg">
+                              Quiz
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Lesson Content - Read-only ReactQuill */}
+                        <div className="border rounded-lg overflow-hidden bg-white">
+                          <ReactQuill value={lesson.content || '<p>Start writing...</p>'} readOnly={true} theme="snow" modules={{ toolbar: false }} className="read-only-quill" />
+                        </div>
                       </div>
-                      <input type="number" value={lesson.duration_minutes || ''} readOnly placeholder="Duration" className="w-20 px-3 py-2 border rounded-lg bg-slate-50 text-slate-900 text-center cursor-default" />
-                      {lesson.quiz && (
-                        <span className="px-3 py-2 text-sm text-slate-600 bg-slate-100 rounded-lg">
-                          Quiz
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Lesson Content - Read-only ReactQuill */}
-                    <div className="border rounded-lg overflow-hidden bg-white">
-                      <ReactQuill value={lesson.content || '<p>Start writing...</p>'} readOnly={true} theme="snow" modules={{ toolbar: false }} className="read-only-quill" />
-                    </div>
+                    ))
+                ) : (
+                  <div className="text-center py-12 text-slate-500">
+                    No lessons available yet.
                   </div>
-                ))
-            ) : (
-              <div className="text-center py-12 text-slate-500">
-                No lessons available yet.
+                )}
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       </div>
