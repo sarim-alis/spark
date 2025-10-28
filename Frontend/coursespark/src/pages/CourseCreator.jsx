@@ -7,7 +7,7 @@ import { User } from '@/api/entities';
 import { courseAPI } from '@/services/courseApi';
 import { generateCourseWithAI } from '@/services/aiCourseGenerator';
 import { generateCoursePPT } from '@/services/pptGenerator';
-import { generateProfessionalPPT } from '@/services/professionalPptGenerator';
+import { generateGammaProPPT } from '@/services/gammaProPptGenerator';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
@@ -86,7 +86,7 @@ export default function CourseCreator() {
     try {
       message.loading(`Generating ${pageCount}-slide PowerPoint presentation...`, 0);
       
-      const result = await generateProfessionalPPT({
+      const result = await generateGammaProPPT({
         ...draft,
         audience: formData?.audience || 'All learners'
       }, pageCount, true); // true = use AI
@@ -104,7 +104,7 @@ export default function CourseCreator() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
         
-        message.success('Professional PPT downloaded successfully!');
+        message.success('Gamma-quality PPT downloaded successfully!');
         
         // Return the blob and filename for upload if not download-only
         if (!downloadOnly) {
@@ -160,7 +160,7 @@ export default function CourseCreator() {
         // Generate and upload PPT
         message.loading('Generating and uploading PowerPoint...', 0);
         try {
-          const pptResult = await generateProfessionalPPT({
+          const pptResult = await generateGammaProPPT({
             ...draft,
             audience: formData?.audience || 'All learners'
           }, 10, true); // Default 10 slides
