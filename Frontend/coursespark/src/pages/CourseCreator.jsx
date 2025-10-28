@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react';
 import CoursePromptForm from '@/components/course-creator/CoursePromptForm';
 import GeneratedCoursePreview from '@/components/course-creator/GeneratedCoursePreview';
+import PPTConfigModal from '@/components/course-creator/PPTConfigModal';
 import { User } from '@/api/entities';
 import { courseAPI } from '@/services/courseApi';
 import { generateCourseWithAI } from '@/services/aiCourseGenerator';
 import { generateCoursePPT } from '@/services/pptGenerator';
+import { generateProfessionalPPT } from '@/services/professionalPptGenerator';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
@@ -20,6 +22,7 @@ export default function CourseCreator() {
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState(null);
   const [isGeneratingPPT, setIsGeneratingPPT] = useState(false);
+  const [showPPTModal, setShowPPTModal] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -76,17 +79,17 @@ export default function CourseCreator() {
 
   const handleEdit = (updated) => setDraft(updated);
 
-  const handleGeneratePPT = async (downloadOnly = false) => {
+  const handleGeneratePPT = async (pageCount, downloadOnly = false) => {
     if (!draft) return null;
     
     setIsGeneratingPPT(true);
     try {
-      message.loading('Generating PowerPoint presentation...', 0);
+      message.loading(`Generating ${pageCount}-slide PowerPoint presentation...`, 0);
       
-      const result = await generateCoursePPT({
+      const result = await generateProfessionalPPT({
         ...draft,
         audience: formData?.audience || 'All learners'
-      }, true); // true = use AI
+      }, pageCount, true); // true = use AI
       
       message.destroy();
       
@@ -101,7 +104,7 @@ export default function CourseCreator() {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
         
-        message.success('PPT downloaded successfully!');
+        message.success('Professional PPT downloaded successfully!');
         
         // Return the blob and filename for upload if not download-only
         if (!downloadOnly) {
@@ -157,10 +160,10 @@ export default function CourseCreator() {
         // Generate and upload PPT
         message.loading('Generating and uploading PowerPoint...', 0);
         try {
-          const pptResult = await generateCoursePPT({
+          const pptResult = await generateProfessionalPPT({
             ...draft,
             audience: formData?.audience || 'All learners'
-          }, true);
+          }, 10, true); // Default 10 slides
           
           if (pptResult.success && pptResult.blob) {
             // Create File object from blob.
@@ -209,12 +212,24 @@ export default function CourseCreator() {
         ) : (
           <>
             <div className="mb-4 flex justify-end">
-              <button onClick={() => handleGeneratePPT(true)} disabled={isGeneratingPPT} className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              <button 
+                onClick={() => setShowPPTModal(true)} 
+                disabled={isGeneratingPPT} 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <FileDown className="w-4 h-4" />
-                {isGeneratingPPT ? 'Generating PPT...' : 'Download PPT'}
+                {isGeneratingPPT ? 'Generating PPT...' : 'Generate PPT'}
               </button>
             </div>
             <GeneratedCoursePreview course={draft} onEdit={handleEdit} onSave={handleSave} onBack={() => setDraft(null)} />
+            
+            {/* PPT Configuration Modal */}
+            <PPTConfigModal
+              isOpen={showPPTModal}
+              onClose={() => setShowPPTModal(false)}
+              onGenerate={(pageCount) => handleGeneratePPT(pageCount, true)}
+              totalLessons={draft?.lessons?.length || 0}
+            />
           </>
         )}
       </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import AnimatedCourseOutline from "./AnimatedCourseOutline";
 import { 
   ArrowLeft, 
   Save, 
@@ -126,35 +127,8 @@ export default function GeneratedCoursePreview({ course, onEdit, onSave, onBack 
         </CardContent>
       </Card>
 
-      {/* Lessons Preview */}
-      <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-slate-800">Course Content</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {course.lessons.map((lesson, index) => (
-              <div key={index} className="p-4 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-800 mb-2">
-                      Lesson {lesson.order}: {lesson.title}
-                    </h3>
-                    <div 
-                      className="text-slate-600 text-sm line-clamp-3"
-                      dangerouslySetInnerHTML={{ __html: lesson.content.substring(0, 200) + "..." }}
-                    />
-                  </div>
-                  <Badge variant="outline">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {lesson.duration_minutes}min
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Animated Lessons Outline */}
+      <AnimatedCourseOutline lessons={course.lessons} />
 
       {/* Bottom Actions */}
       <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
