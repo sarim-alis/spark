@@ -28,6 +28,15 @@ export const courseAPI = {
     
     // Toggle course publication status
     togglePublish: (id) => api.post(`/courses/${id}/toggle-publish`),
+    
+    // Upload PowerPoint file
+    uploadPowerPoint: (id, file) => {
+        const formData = new FormData();
+        formData.append('powerpoint', file);
+        return api.post(`/courses/${id}/upload-powerpoint`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
 };
 
 export default courseAPI;

@@ -94,7 +94,7 @@ export default function GeneratedCoursePreview({ course, onEdit, onSave, onBack 
                     </Badge>
                     <Badge variant="secondary" className="flex items-center gap-1.5">
                       <DollarSign className="w-3.5 h-3.5" />
-                      ${course.price}
+                      {course.price}
                     </Badge>
                   </div>
                 </>

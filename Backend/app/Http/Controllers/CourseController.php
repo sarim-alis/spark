@@ -268,4 +268,64 @@ class CourseController extends Controller
             'data' => $course->load('creator')
         ]);
     }
+
+    /**
+     * Upload PowerPoint file to Cloudinary for a course.
+     */
+    public function uploadPowerPoint(Request $request, Course $course)
+    {
+        // Check if user owns the course
+        if ($course->created_by !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized to modify this course'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'powerpoint' => 'required|file|mimes:pptx,ppt|max:51200', // 50MB max
+        ]);
+
+        // Handle PowerPoint upload to Cloudinary
+        if ($request->hasFile('powerpoint')) {
+            try {
+                $cloudinary = new Cloudinary([
+                    'cloud' => [
+                        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                        'api_key' => env('CLOUDINARY_API_KEY'),
+                        'api_secret' => env('CLOUDINARY_API_SECRET'),
+                    ]
+                ]);
+
+                $uploadedFile = $request->file('powerpoint');
+                $result = $cloudinary->uploadApi()->upload($uploadedFile->getRealPath(), [
+                    'folder' => 'courses/powerpoints',
+                    'resource_type' => 'raw', // For non-image files
+                    'public_id' => 'course_' . $course->id . '_' . time()
+                ]);
+
+                $course->powerpoint = $result['secure_url'];
+                $course->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'PowerPoint uploaded successfully',
+                    'data' => [
+                        'powerpoint_url' => $result['secure_url'],
+                        'course' => $course->load('creator')
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload PowerPoint: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No PowerPoint file provided'
+        ], 400);
+    }
 }

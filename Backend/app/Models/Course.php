@@ -31,6 +31,7 @@ class Course extends Model
         'category',
         'price',
         'thumbnail_url',
+        'powerpoint',
         'external_url',
         'created_by',
         'is_published',

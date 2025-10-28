@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('courses/{course}', [CourseController::class, 'update']);
     Route::delete('courses/{course}', [CourseController::class, 'destroy']);
     Route::post('courses/{course}/toggle-publish', [CourseController::class, 'togglePublish']);
+    Route::post('courses/{course}/upload-powerpoint', [CourseController::class, 'uploadPowerPoint']);
     
     // Admin - Get all courses
     Route::get('admin/courses', [CourseController::class, 'adminIndex']);

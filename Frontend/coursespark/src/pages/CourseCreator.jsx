@@ -5,10 +5,11 @@ import GeneratedCoursePreview from '@/components/course-creator/GeneratedCourseP
 import { User } from '@/api/entities';
 import { courseAPI } from '@/services/courseApi';
 import { generateCourseWithAI } from '@/services/aiCourseGenerator';
+import { generateCoursePPT } from '@/services/pptGenerator';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, FileDown } from 'lucide-react';
 
 
 // Frontend.
@@ -18,6 +19,7 @@ export default function CourseCreator() {
   const [draft, setDraft] = useState(null);
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState(null);
+  const [isGeneratingPPT, setIsGeneratingPPT] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -52,7 +54,7 @@ export default function CourseCreator() {
           level: form.level,
           category: form.category,
           duration_hours: form.duration,
-          price: 49,
+          price: form.price || 0,
           thumbnail_url: imagePreviewUrl,
           lessons: aiCourse.lessons,
           created_by: user?.email || 'dev@localhost.com',
@@ -74,9 +76,55 @@ export default function CourseCreator() {
 
   const handleEdit = (updated) => setDraft(updated);
 
+  const handleGeneratePPT = async (downloadOnly = false) => {
+    if (!draft) return null;
+    
+    setIsGeneratingPPT(true);
+    try {
+      message.loading('Generating PowerPoint presentation...', 0);
+      
+      const result = await generateCoursePPT({
+        ...draft,
+        audience: formData?.audience || 'All learners'
+      }, true); // true = use AI
+      
+      message.destroy();
+      
+      if (result.success) {
+        // Download the file
+        const url = window.URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = result.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        message.success('PPT downloaded successfully!');
+        
+        // Return the blob and filename for upload if not download-only
+        if (!downloadOnly) {
+          return { blob: result.blob, fileName: result.fileName };
+        }
+      } else {
+        message.error(result.error || 'Failed to generate PPT');
+      }
+    } catch (error) {
+      message.destroy();
+      message.error('Failed to generate PPT. Please try again.');
+      console.error('PPT generation error:', error);
+    } finally {
+      setIsGeneratingPPT(false);
+    }
+    return null;
+  };
+
   const handleSave = async () => {
     if (!draft || !formData) return;
     try {
+      message.loading('Saving course...', 0);
+      
       // Prepare FormData for file upload.
       const formDataToSend = new FormData();
       formDataToSend.append('title', draft.title);
@@ -88,6 +136,11 @@ export default function CourseCreator() {
       formDataToSend.append('category', formData.category);
       formDataToSend.append('price', formData.price);
       
+      // Add external_url if it exists
+      if (draft.external_url) {
+        formDataToSend.append('external_url', draft.external_url);
+      }
+      
       // Add image if selected.
       if (formData.thumbnailUrl) {
         formDataToSend.append('thumbnail_url', formData.thumbnailUrl);
@@ -97,10 +150,42 @@ export default function CourseCreator() {
       const response = await courseAPI.create(formDataToSend);
       
       if (response.data.success) {
+        const courseId = response.data.data.id;
+        message.destroy();
         message.success('Course created successfully!');
+        
+        // Generate and upload PPT
+        message.loading('Generating and uploading PowerPoint...', 0);
+        try {
+          const pptResult = await generateCoursePPT({
+            ...draft,
+            audience: formData?.audience || 'All learners'
+          }, true);
+          
+          if (pptResult.success && pptResult.blob) {
+            // Create File object from blob.
+            const pptFile = new File([pptResult.blob], pptResult.fileName, {
+              type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+            });
+            
+            // Upload to backend.
+            await courseAPI.uploadPowerPoint(courseId, pptFile);
+            message.destroy();
+            message.success('Course saved successfully!');
+          } else {
+            message.destroy();
+            message.warning('Course saved, but PPT generation failed');
+          }
+        } catch (pptError) {
+          console.error('PPT upload error:', pptError);
+          message.destroy();
+          message.warning('Course saved, but PPT upload failed');
+        }
+        
         navigate(createPageUrl('MyCourses'));
       }
     } catch (e) {
+      message.destroy();
       console.error('Failed to save course', e);
       message.error(e.response?.data?.message || 'Failed to save course. Please try again.');
     }
@@ -122,12 +207,15 @@ export default function CourseCreator() {
         {!draft ? (
           <CoursePromptForm onGenerate={handleGenerate} isGenerating={isGenerating} />
         ) : (
-          <GeneratedCoursePreview
-            course={draft}
-            onEdit={handleEdit}
-            onSave={handleSave}
-            onBack={() => setDraft(null)}
-          />
+          <>
+            <div className="mb-4 flex justify-end">
+              <button onClick={() => handleGeneratePPT(true)} disabled={isGeneratingPPT} className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <FileDown className="w-4 h-4" />
+                {isGeneratingPPT ? 'Generating PPT...' : 'Download PPT'}
+              </button>
+            </div>
+            <GeneratedCoursePreview course={draft} onEdit={handleEdit} onSave={handleSave} onBack={() => setDraft(null)} />
+          </>
         )}
       </div>
     </div>
