@@ -131,10 +131,10 @@ export default function CourseCreator() {
       formDataToSend.append('description', draft.description || '');
       formDataToSend.append('lessons', JSON.stringify(draft.lessons || []));
       formDataToSend.append('audience', formData.audience);
-      formDataToSend.append('level', formData.level);
-      formDataToSend.append('duration_hours', formData.duration);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('price', formData.price);
+      formDataToSend.append('level', draft.level || formData.level);
+      formDataToSend.append('duration_hours', draft.duration_hours || formData.duration);
+      formDataToSend.append('category', draft.category || formData.category);
+      formDataToSend.append('price', draft.price || formData.price || 0);
       
       // Add external_url if it exists
       if (draft.external_url) {

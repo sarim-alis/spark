@@ -62,7 +62,7 @@ export default function GeneratedCoursePreview({ course, onEdit, onSave, onBack 
                   <Input
                     type="number"
                     value={editedCourse.price}
-                    onChange={(e) => setEditedCourse({...editedCourse, price: parseFloat(e.target.value)})}
+                    onChange={(e) => setEditedCourse({...editedCourse, price: e.target.value === '' ? '' : parseFloat(e.target.value)})}
                     className="w-32"
                     placeholder="Price"
                   />
