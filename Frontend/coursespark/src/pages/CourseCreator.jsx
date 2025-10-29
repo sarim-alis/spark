@@ -8,10 +8,11 @@ import { courseAPI } from '@/services/courseApi';
 import { generateCourseWithAI } from '@/services/aiCourseGenerator';
 import { generateCoursePPT } from '@/services/pptGenerator';
 import { generateGammaProPPT } from '@/services/gammaProPptGenerator';
+import { generateGoogleSlides, openPresentation } from '@/services/googleSlidesGenerator';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { Sparkles, FileDown } from 'lucide-react';
+import { Sparkles, FileDown, ExternalLink } from 'lucide-react';
 
 
 // Frontend.
@@ -123,6 +124,50 @@ export default function CourseCreator() {
     return null;
   };
 
+  const handleGenerateGoogleSlides = async () => {
+    if (!draft) return;
+    
+    setIsGeneratingPPT(true);
+    try {
+      message.loading('Generating PowerPoint via Google Slides API...', 0);
+      
+      const result = await generateGoogleSlides({
+        ...draft,
+        audience: formData?.audience || 'All learners'
+      });
+      
+      message.destroy();
+      
+      if (result.success) {
+        message.success(`PowerPoint downloaded: ${result.fileName}`);
+      } else {
+        // Check if it's a popup blocking issue
+        if (result.error && result.error.includes('popup')) {
+          message.error({
+            content: 'Please allow popups for this site and try again.',
+            duration: 5,
+          });
+        } else {
+          message.error(result.error || 'Failed to generate PowerPoint');
+        }
+      }
+    } catch (error) {
+      message.destroy();
+      const errorMsg = error.message || 'Failed to generate PowerPoint. Please try again.';
+      if (errorMsg.includes('popup')) {
+        message.error({
+          content: 'Popup blocked! Please allow popups for this site in your browser settings.',
+          duration: 6,
+        });
+      } else {
+        message.error(errorMsg);
+      }
+      console.error('Google Slides generation error:', error);
+    } finally {
+      setIsGeneratingPPT(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!draft || !formData) return;
     try {
@@ -211,14 +256,22 @@ export default function CourseCreator() {
           <CoursePromptForm onGenerate={handleGenerate} isGenerating={isGenerating} />
         ) : (
           <>
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex justify-end gap-3">
+              <button 
+                onClick={handleGenerateGoogleSlides} 
+                disabled={isGeneratingPPT} 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileDown className="w-4 h-4" />
+                {isGeneratingPPT ? 'Generating...' : 'Generate PPT (Google API)'}
+              </button>
               <button 
                 onClick={() => setShowPPTModal(true)} 
                 disabled={isGeneratingPPT} 
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FileDown className="w-4 h-4" />
-                {isGeneratingPPT ? 'Generating PPT...' : 'Generate PPT'}
+                {isGeneratingPPT ? 'Generating...' : 'Generate PPT (Local)'}
               </button>
             </div>
             <GeneratedCoursePreview course={draft} onEdit={handleEdit} onSave={handleSave} onBack={() => setDraft(null)} />
