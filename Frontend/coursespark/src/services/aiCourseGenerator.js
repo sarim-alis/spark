@@ -10,35 +10,8 @@ const generateMockCourse = (formData) => {
   for (let i = 0; i < numLessons; i++) {
     lessons.push({
       title: `${formData.topic} - Lesson ${i + 1}: Core Fundamentals`,
-      content: `
-        <h2>Lesson ${i + 1}: Core Fundamentals</h2>
-        
-        <h3>Overview</h3>
-        <p>This lesson introduces you to the essential concepts of ${formData.topic} that form the foundation of your learning journey. Understanding these fundamentals is crucial for ${formData.audience} who want to build a strong knowledge base in ${formData.category}.</p>
-        <p>We'll explore key principles, examine real-world applications, and provide you with practical frameworks you can apply immediately. By the end of this lesson, you'll have clarity on how these concepts work together to create meaningful outcomes.</p>
-        
-        <h3>Key Concepts</h3>
-        <p>The core of ${formData.topic} revolves around several interconnected ideas. First, we examine the theoretical foundations that experts in ${formData.category} rely on daily. These principles have been refined over years of practice and research, giving you a proven roadmap to follow.</p>
-        <p>Second, we look at how these concepts translate into practical applications. You'll see how professionals use these ideas to solve real problems, make decisions, and create value. This bridges the gap between theory and practice, making your learning immediately actionable.</p>
-        <p>Finally, we discuss common pitfalls and how to avoid them. Learning from others' mistakes accelerates your progress and helps you develop good habits from the start.</p>
-        
-        <h3>What You'll Learn</h3>
-        <ul>
-          <li>Master the fundamental principles that underpin ${formData.topic}</li>
-          <li>Understand how to apply theoretical concepts to real-world scenarios</li>
-          <li>Recognize patterns and connections between different aspects of ${formData.category}</li>
-          <li>Develop critical thinking skills specific to this domain</li>
-          <li>Build confidence in your ability to tackle more advanced topics</li>
-          <li>Create a personal framework for continued learning and growth</li>
-        </ul>
-        
-        <h3>Practical Examples</h3>
-        <p>Consider a real-world scenario where ${formData.audience} need to apply ${formData.topic} knowledge. For instance, professionals in this field regularly face challenges that require quick decision-making based on core principles. By understanding the fundamentals, you can analyze situations systematically and choose the best approach.</p>
-        <p>We'll walk through case studies showing both successful implementations and common mistakes. These examples demonstrate how small differences in understanding can lead to vastly different outcomes, reinforcing why mastering fundamentals matters.</p>
-        
-        <h3>Summary</h3>
-        <p>This lesson established the foundational knowledge you need to progress confidently in ${formData.topic}. You've learned the key concepts, seen practical applications, and understand how to avoid common pitfalls. With this solid base, you're ready to explore more advanced topics and start applying what you've learned in your own context. Remember, mastery comes from practice—so take time to reflect on these concepts and look for opportunities to use them.</p>
-      `,
+      outline: `• Understanding core principles of ${formData.topic}\n• Learning practical applications in ${formData.category}`,
+      content: `<h3>Understanding core principles of ${formData.topic}</h3>\n<p>This section introduces you to the core principles that form the foundation of ${formData.topic}. You'll learn how these concepts work, why they're essential for ${formData.audience}, and how to apply them effectively in your work. We'll explore the fundamental building blocks that professionals use daily, examining both theoretical frameworks and practical implementations. You'll gain a deep understanding of the underlying mechanisms, best practices, and common patterns that make ${formData.topic} so powerful. By the end of this section, you'll have a solid grasp of the core concepts and be ready to apply them in real-world scenarios.</p>\n\n<h3>Learning practical applications in ${formData.category}</h3>\n<p>Discover how professionals apply ${formData.topic} in real-world scenarios. You'll see practical examples, learn industry best practices, and gain techniques you can use immediately in your projects. This section covers hands-on applications, real-world case studies, and proven strategies that successful practitioners use. We'll walk through step-by-step implementations, discuss common challenges and their solutions, and explore advanced techniques that can elevate your work. You'll learn not just what to do, but why it works and when to apply specific approaches for maximum impact.</p>`,
       duration_minutes: 30 + (i * 10),
       order: i + 1
     });
@@ -86,15 +59,8 @@ Please generate a course with the following structure in JSON format:
   "lessons": [
     {
       "title": "Lesson title (clear and descriptive)",
-      "content": "Rich, detailed lesson content in HTML format. Structure each lesson with:
-        - <h2>Lesson Title</h2>
-        - <h3>Overview</h3> with 1-2 paragraphs explaining what this lesson covers and why it matters
-        - <h3>Key Concepts</h3> with detailed explanations (2-3 paragraphs) of the main ideas
-        - <h3>What You'll Learn</h3> with <ul><li> bullet points (4-6 items) listing specific skills/knowledge
-        - <h3>Practical Examples</h3> with 1-2 paragraphs showing real-world applications
-        - <h3>Summary</h3> with a concluding paragraph reinforcing key takeaways
-        
-        Make the content substantive, educational, and detailed. Each lesson should feel like a complete learning module with clear explanations, examples, and actionable insights.",
+      "outline": "EXACTLY 2 bullet points (each on a new line, starting with •). Each point should be a complete, descriptive sentence (8-12 words maximum) that clearly explains what will be learned. Keep titles concise to fit on one line. Example format:\n• Understanding Vue.js architecture and reactive data binding\n• Setting up your development environment and first application",
+      "content": "EXACTLY 2 sections in HTML format. Each section MUST have:\n1. An <h3> heading that matches the outline point EXACTLY (word-for-word)\n2. ONE paragraph (<p> tag) with 7-8 lines (120-150 words) explaining that point in comprehensive detail\n\nFormat:\n<h3>[First outline point text]</h3>\n<p>Comprehensive explanation in 7-8 lines covering: the key concepts in depth, theoretical foundations, practical applications with examples, why it matters for learners, common use cases, best practices, potential challenges and solutions, and actionable takeaways. Make it educational, detailed, and valuable.</p>\n\n<h3>[Second outline point text]</h3>\n<p>Comprehensive explanation in 7-8 lines covering: the key concepts in depth, theoretical foundations, practical applications with examples, why it matters for learners, common use cases, best practices, potential challenges and solutions, and actionable takeaways. Make it educational, detailed, and valuable.</p>\n\nMake each paragraph comprehensive, informative, and rich with details. Each section will be displayed on its own slide.",
       "duration_minutes": estimated duration in minutes (realistic based on content depth)
     }
   ]
@@ -116,7 +82,7 @@ Return ONLY the JSON object, no additional text.`;
         'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo-16k',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -128,7 +94,7 @@ Return ONLY the JSON object, no additional text.`;
           }
         ],
         temperature: 0.7,
-        max_tokens: 4000
+        max_tokens: 8000
       })
     });
 

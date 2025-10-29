@@ -101,66 +101,91 @@ const createPresentation = async (title) => {
 };
 
 /**
- * Build slide requests for batch update
+ * Parse lesson content into sections
+ */
+const parseLessonSections = (lesson) => {
+  const htmlContent = lesson.content || '';
+  const div = document.createElement('div');
+  div.innerHTML = htmlContent;
+
+  const sections = [];
+  const headings = div.querySelectorAll('h3');
+  
+  headings.forEach((h3) => {
+    const heading = h3.textContent.trim();
+    let nextElement = h3.nextElementSibling;
+    let content = '';
+    
+    if (nextElement && nextElement.tagName === 'P') {
+      content = nextElement.textContent.trim();
+    }
+    
+    if (heading && content) {
+      sections.push({ heading, content });
+    }
+  });
+
+  return sections;
+};
+
+/**
+ * Build slide requests for batch update - creates one slide per section
  */
 const buildSlideRequests = (courseData, layoutObjectId) => {
   const requests = [];
   const lessons = courseData.lessons || [];
+  let slideIndex = 1; // Start after title slide
   
-  // Create slides for each lesson using the layout reference from the presentation
-  lessons.forEach((lesson, index) => {
-    const slideId = `lesson_slide_${index}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Create one slide for each section (1 section per slide)
+  lessons.forEach((lesson, lessonIndex) => {
+    const sections = parseLessonSections(lesson);
+    
+    // Create one slide per section
+    sections.forEach((section, sectionIndex) => {
+      const slideId = `lesson_${lessonIndex}_section_${sectionIndex}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Create new slide with predefined layout or layout reference
-    const slideRequest = {
-      createSlide: {
-        objectId: slideId,
-        insertionIndex: index + 1, // Insert after title slide
-      }
-    };
-
-    // Add layout reference if available, otherwise use default
-    if (layoutObjectId) {
-      slideRequest.createSlide.slideLayoutReference = {
-        predefinedLayout: 'TITLE_AND_BODY'
+      const slideRequest = {
+        createSlide: {
+          objectId: slideId,
+          insertionIndex: slideIndex++,
+        }
       };
-    }
 
-    requests.push(slideRequest);
+      if (layoutObjectId) {
+        slideRequest.createSlide.slideLayoutReference = {
+          predefinedLayout: 'TITLE_AND_BODY'
+        };
+      }
+
+      requests.push(slideRequest);
+    });
   });
 
   return requests;
 };
 
 /**
- * Extract bullet points from HTML content
+ * Format single section for slide - just return the content
  */
-const extractBulletPoints = (htmlContent) => {
-  const div = document.createElement('div');
-  div.innerHTML = htmlContent;
+const formatSectionContent = (section) => {
+  // Return just the content paragraph, heading goes in title
+  return section.content;
+};
 
-  const bullets = [];
+/**
+ * Extract first sentence from description for title slide
+ */
+const extractFirstSentence = (description) => {
+  if (!description) return '';
   
-  // Extract from <li> tags
-  const listItems = div.querySelectorAll('li');
-  listItems.forEach((li) => {
-    bullets.push(`• ${li.textContent.trim()}`);
-  });
-
-  // If no bullets, extract from paragraphs
-  if (bullets.length === 0) {
-    const paragraphs = div.querySelectorAll('p');
-    paragraphs.forEach((p, i) => {
-      if (i < 5) { // Limit to 5 points
-        const text = p.textContent.trim();
-        if (text.length > 0 && text.length < 200) {
-          bullets.push(`• ${text}`);
-        }
-      }
-    });
+  // Find the first sentence (ends with . ! or ?)
+  const match = description.match(/^[^.!?]+[.!?]/);
+  if (match) {
+    return match[0].trim();
   }
-
-  return bullets.join('\n') || '• Key concepts and learning objectives\n• Practical applications\n• Summary and takeaways';
+  
+  // If no sentence ending found, take first 100 characters
+  return description.substring(0, 100).trim() + '...';
 };
 
 /**
@@ -327,41 +352,80 @@ export const generateGoogleSlides = async (courseData) => {
       const contentRequests = [];
 
       // Skip the first slide (title slide) and add content to lesson slides
-      updatedPresentation.result.slides.slice(1).forEach((slide, index) => {
-        if (index >= lessons.length) return;
+      const slides = updatedPresentation.result.slides.slice(1);
+      let slideIdx = 0;
 
-        const lesson = lessons[index];
+      lessons.forEach((lesson, lessonIndex) => {
+        const sections = parseLessonSections(lesson);
         
-        // Find title and body placeholders
-        const titlePlaceholder = slide.pageElements?.find(
-          el => el.shape?.placeholder?.type === 'TITLE' || el.shape?.placeholder?.type === 'CENTERED_TITLE'
-        );
-        const bodyPlaceholder = slide.pageElements?.find(
-          el => el.shape?.placeholder?.type === 'BODY'
-        );
+        // One slide per section
+        sections.forEach((section, sectionIndex) => {
+          if (slideIdx >= slides.length) return;
+          
+          const slide = slides[slideIdx];
+          
+          // Find title and body placeholders
+          const titlePlaceholder = slide.pageElements?.find(
+            el => el.shape?.placeholder?.type === 'TITLE' || el.shape?.placeholder?.type === 'CENTERED_TITLE'
+          );
+          const bodyPlaceholder = slide.pageElements?.find(
+            el => el.shape?.placeholder?.type === 'BODY'
+          );
 
-        // Add title
-        if (titlePlaceholder) {
-          contentRequests.push({
-            insertText: {
-              objectId: titlePlaceholder.objectId,
-              text: lesson.title || `Lesson ${index + 1}`,
-              insertionIndex: 0,
-            },
-          });
-        }
+          // Delete existing text in placeholders first
+          if (titlePlaceholder && titlePlaceholder.shape?.text?.textElements) {
+            const textElements = titlePlaceholder.shape.text.textElements;
+            if (textElements.length > 1) { // More than just the empty element
+              contentRequests.push({
+                deleteText: {
+                  objectId: titlePlaceholder.objectId,
+                  textRange: {
+                    type: 'ALL'
+                  }
+                }
+              });
+            }
+          }
 
-        // Add content
-        if (bodyPlaceholder) {
-          const content = extractBulletPoints(lesson.content);
-          contentRequests.push({
-            insertText: {
-              objectId: bodyPlaceholder.objectId,
-              text: content,
-              insertionIndex: 0,
-            },
-          });
-        }
+          if (bodyPlaceholder && bodyPlaceholder.shape?.text?.textElements) {
+            const textElements = bodyPlaceholder.shape.text.textElements;
+            if (textElements.length > 1) {
+              contentRequests.push({
+                deleteText: {
+                  objectId: bodyPlaceholder.objectId,
+                  textRange: {
+                    type: 'ALL'
+                  }
+                }
+              });
+            }
+          }
+
+          // Add section heading as slide title
+          if (titlePlaceholder) {
+            contentRequests.push({
+              insertText: {
+                objectId: titlePlaceholder.objectId,
+                text: section.heading,
+                insertionIndex: 0,
+              },
+            });
+          }
+
+          // Add section content as slide body
+          if (bodyPlaceholder) {
+            const content = formatSectionContent(section);
+            contentRequests.push({
+              insertText: {
+                objectId: bodyPlaceholder.objectId,
+                text: content,
+                insertionIndex: 0,
+              },
+            });
+          }
+          
+          slideIdx++;
+        });
       });
 
       if (contentRequests.length > 0) {
@@ -403,10 +467,12 @@ export const generateGoogleSlides = async (courseData) => {
       }
 
       if (subtitlePlaceholder && courseData.description) {
+        // Extract only the first sentence for a one-line description
+        const oneLineDescription = extractFirstSentence(courseData.description);
         titleRequests.push({
           insertText: {
             objectId: subtitlePlaceholder.objectId,
-            text: courseData.description.substring(0, 200), // Limit length
+            text: oneLineDescription,
             insertionIndex: 0,
           },
         });

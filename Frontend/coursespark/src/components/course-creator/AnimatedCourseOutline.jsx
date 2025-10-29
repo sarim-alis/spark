@@ -56,9 +56,21 @@ export default function AnimatedCourseOutline({ lessons = [] }) {
     return tmp.textContent || tmp.innerText || '';
   };
 
-  const extractBulletPoints = (content) => {
+  const extractBulletPoints = (lesson) => {
+    // First, try to use the outline field if it exists
+    if (lesson.outline && lesson.outline.trim().length > 0) {
+      // Split by newlines and clean up bullet points
+      return lesson.outline
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => line.replace(/^•\s*/, '').trim())
+        .filter(line => line.length > 0);
+    }
+    
+    // Fallback: Extract from HTML content
     const tmp = document.createElement('div');
-    tmp.innerHTML = content;
+    tmp.innerHTML = lesson.content || '';
     const listItems = tmp.querySelectorAll('li');
     return Array.from(listItems).map(li => li.textContent.trim()).slice(0, 4);
   };
@@ -87,7 +99,7 @@ export default function AnimatedCourseOutline({ lessons = [] }) {
       <div className="space-y-4">
         {lessons.map((lesson, index) => {
           const isExpanded = expandedLessons.has(index);
-          const bulletPoints = extractBulletPoints(lesson.content);
+          const bulletPoints = extractBulletPoints(lesson);
           
           return (
             <motion.div
