@@ -8,10 +8,11 @@ import { courseAPI } from '@/services/courseApi';
 import { generateCourseWithAI } from '@/services/aiCourseGenerator';
 import { generateCoursePPT } from '@/services/pptGenerator';
 import { generateGammaProPPT } from '@/services/gammaProPptGenerator';
+import { generateGoogleSlides, openPresentation } from '@/services/googleSlidesGenerator';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { Sparkles, FileDown } from 'lucide-react';
+import { Sparkles, FileDown, ExternalLink } from 'lucide-react';
 
 
 // Frontend.
@@ -123,6 +124,48 @@ export default function CourseCreator() {
     return null;
   };
 
+  const handleGenerateGoogleSlides = async () => {
+    if (!draft) return;
+    
+    setIsGeneratingPPT(true);
+    try {
+      message.loading('Creating Google Slides presentation...', 0);
+      
+      const result = await generateGoogleSlides({
+        ...draft,
+        audience: formData?.audience || 'All learners'
+      });
+      
+      message.destroy();
+      
+      if (result.success) {
+        message.success('Google Slides presentation created successfully!');
+        
+        // Open presentation in new tab
+        openPresentation(result.presentationId);
+        
+        // Optionally save the presentation URL to the course
+        if (draft.id && !draft.id.startsWith('draft-')) {
+          try {
+            await courseAPI.update(draft.id, {
+              external_url: result.presentationUrl
+            });
+          } catch (error) {
+            console.error('Failed to save presentation URL:', error);
+          }
+        }
+      } else {
+        message.error(result.error || 'Failed to create Google Slides presentation');
+      }
+    } catch (error) {
+      message.destroy();
+      message.error('Failed to create Google Slides. Please try again.');
+      console.error('Google Slides generation error:', error);
+    } finally {
+      setIsGeneratingPPT(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!draft || !formData) return;
     try {
@@ -211,14 +254,22 @@ export default function CourseCreator() {
           <CoursePromptForm onGenerate={handleGenerate} isGenerating={isGenerating} />
         ) : (
           <>
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex justify-end gap-3">
+              <button 
+                onClick={handleGenerateGoogleSlides} 
+                disabled={isGeneratingPPT} 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ExternalLink className="w-4 h-4" />
+                {isGeneratingPPT ? 'Creating...' : 'Create Google Slides'}
+              </button>
               <button 
                 onClick={() => setShowPPTModal(true)} 
                 disabled={isGeneratingPPT} 
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FileDown className="w-4 h-4" />
-                {isGeneratingPPT ? 'Generating PPT...' : 'Generate PPT'}
+                {isGeneratingPPT ? 'Generating...' : 'Download PPT'}
               </button>
             </div>
             <GeneratedCoursePreview course={draft} onEdit={handleEdit} onSave={handleSave} onBack={() => setDraft(null)} />
