@@ -412,13 +412,14 @@ export const generateGoogleSlides = async (courseData) => {
             });
           }
 
-          // Add section content as slide body
+          // Add section content as slide body with proper spacing
           if (bodyPlaceholder) {
             const content = formatSectionContent(section);
+            // Add line breaks at the start for proper spacing after title
             contentRequests.push({
               insertText: {
                 objectId: bodyPlaceholder.objectId,
-                text: content,
+                text: '\n\n' + content,
                 insertionIndex: 0,
               },
             });
@@ -472,7 +473,7 @@ export const generateGoogleSlides = async (courseData) => {
         titleRequests.push({
           insertText: {
             objectId: subtitlePlaceholder.objectId,
-            text: oneLineDescription,
+            text: '\n\n' + oneLineDescription,
             insertionIndex: 0,
           },
         });
